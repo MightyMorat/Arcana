@@ -4,6 +4,7 @@
 #include "InteractiveObject.h"
 
 #include "Engine/Classes/Components/PrimitiveComponent.h"
+#include "Engine.h"
 
 void AInteractiveObject::NotifyActorBeginCursorOver()
 {
@@ -36,4 +37,7 @@ void AInteractiveObject::NotifyActorEndCursorOver()
 void AInteractiveObject::NotifyActorOnClicked(FKey ButtonPressed)
 {
 	Super::NotifyActorOnClicked(ButtonPressed);
+
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Object Clicked: %s"), *GetName()));
 }
