@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class ARCANA_API AArcanaPlayerController : public APlayerController
 {
 	GENERATED_BODY()
@@ -20,7 +20,42 @@ public:
 	virtual void BeginPlay() override;
 	virtual void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure = false)
+	void GetIsRotating(bool& bOutIsRotating, float& OutMouseLocationX, float& OutMouseLocationY) const;
+
 protected:
+	void OnLeftClickPressed();
+	void OnLeftClickReleased();
+	void OnRightClickPressed();
+	void OnRightClickReleased();
+
+	void OnMouseX(float AxisValue);
+	void OnMouseY(float AxisValue);
+	void OnMouseWheel(float AxisValue);
+
+	bool bRMBPressed = false;
+	bool bLMBPressed = false;
+	float MouseLocationX = 0.0f;
+	float MouseLocationY = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ZoomAlpha = 0.4f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ZoomAlphaRate = 3.5f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float RotationSpeed = 360.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCurveFloat* CameraDistanceCurve = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCurveFloat* CameraPitchCurve = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCurveFloat* DragSpeedCurve = nullptr;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USpringArmComponent* SpringArmComponent;
 

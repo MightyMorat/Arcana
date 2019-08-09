@@ -2,8 +2,11 @@
 
 #include "ArcanaPlayerController.h"
 
-#include "Classes/Camera/CameraComponent.h"
-#include "Classes/GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Components/InputComponent.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AArcanaPlayerController::AArcanaPlayerController()
 {
@@ -22,6 +25,7 @@ AArcanaPlayerController::AArcanaPlayerController()
 	bEnableMouseOverEvents = true;
 
 	bAutoManageActiveCameraTarget = false;
+	bAttachToPawn = true;
 }
 
 void AArcanaPlayerController::BeginPlay()
@@ -31,11 +35,131 @@ void AArcanaPlayerController::BeginPlay()
 	FInputModeGameAndUI InputMode;
 	InputMode.SetHideCursorDuringCapture(false);
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockOnCapture);
-	InputMode.SetWidgetToFocus(nullptr);
 	SetInputMode(InputMode);
+
+	InputComponent->BindKey(EKeys::LeftMouseButton, EInputEvent::IE_Pressed, this, &AArcanaPlayerController::OnLeftClickPressed);
+	InputComponent->BindKey(EKeys::LeftMouseButton, EInputEvent::IE_Released, this, &AArcanaPlayerController::OnLeftClickReleased);
+	InputComponent->BindKey(EKeys::RightMouseButton, EInputEvent::IE_Pressed, this, &AArcanaPlayerController::OnRightClickPressed);
+	InputComponent->BindKey(EKeys::RightMouseButton, EInputEvent::IE_Released, this, &AArcanaPlayerController::OnRightClickReleased);
+
+	InputComponent->BindAxisKey(EKeys::MouseX, this, &AArcanaPlayerController::OnMouseX);
+	InputComponent->BindAxisKey(EKeys::MouseY, this, &AArcanaPlayerController::OnMouseY);
+	InputComponent->BindAxisKey(EKeys::MouseWheelAxis, this, &AArcanaPlayerController::OnMouseWheel);
 }
 
 void AArcanaPlayerController::CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult)
 {
 	AActor::CalcCamera(DeltaTime, OutResult);
+}
+
+void AArcanaPlayerController::GetIsRotating(bool& bOutIsRotating, float& OutMouseLocationX, float& OutMouseLocationY) const
+{
+	bOutIsRotating = bRMBPressed;
+	OutMouseLocationX = MouseLocationX;
+	OutMouseLocationY = MouseLocationY;
+}
+
+void AArcanaPlayerController::OnLeftClickPressed()
+{
+	if (bRMBPressed)
+		return;
+
+	bLMBPressed = true;
+	bEnableMouseOverEvents = false;
+}
+
+void AArcanaPlayerController::OnLeftClickReleased()
+{
+	if (!bLMBPressed)
+		return;
+
+	bLMBPressed = false;
+	bEnableMouseOverEvents = true;
+}
+
+void AArcanaPlayerController::OnRightClickPressed()
+{
+	if (bLMBPressed)
+		return;
+
+	bRMBPressed = true;
+	bShowMouseCursor = false;
+	GetMousePosition(MouseLocationX, MouseLocationY);
+	bEnableMouseOverEvents = false;
+
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
+}
+
+void AArcanaPlayerController::OnRightClickReleased()
+{
+	if (!bRMBPressed)
+		return;
+
+	bRMBPressed = false;
+	SetMouseLocation(FMath::TruncToInt(MouseLocationX), FMath::TruncToInt(MouseLocationY));
+	bShowMouseCursor = true;
+	bEnableMouseOverEvents = true;
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetHideCursorDuringCapture(false);
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockOnCapture);
+	SetInputMode(InputMode);
+}
+
+void AArcanaPlayerController::OnMouseX(float AxisValue)
+{
+	AActor* PawnActor = GetPawn();
+	if (!PawnActor)
+		return;
+
+	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
+
+	if (bLMBPressed)
+	{
+		if (DragSpeedCurve)
+		{
+			const float DistToMove = -AxisValue * DeltaSeconds * DragSpeedCurve->GetFloatValue(SpringArmComponent->TargetArmLength);
+			PawnActor->AddActorLocalOffset(FVector(0.0f, DistToMove, 0.0f));
+		}
+	}
+	else if (bRMBPressed)
+	{
+		RotationInput = FRotator(0.0f, AxisValue * DeltaSeconds * RotationSpeed, 0.0f);
+	}
+}
+
+void AArcanaPlayerController::OnMouseY(float AxisValue)
+{
+	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
+
+	if (bLMBPressed)
+	{
+		if (DragSpeedCurve)
+		{
+			const float DistToMove = -AxisValue * DeltaSeconds * DragSpeedCurve->GetFloatValue(SpringArmComponent->TargetArmLength);
+			if (GetPawn())
+			{
+				GetPawn()->AddActorLocalOffset(FVector(DistToMove, 0.0f, 0.0f));
+			}
+		}
+	}
+}
+
+void AArcanaPlayerController::OnMouseWheel(float AxisValue)
+{
+	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
+
+	ZoomAlpha = FMath::Clamp(ZoomAlpha+AxisValue*DeltaSeconds* ZoomAlphaRate, 0.0f, 1.0f);
+
+	if (CameraDistanceCurve)
+	{
+		SpringArmComponent->TargetArmLength = CameraDistanceCurve->GetFloatValue(ZoomAlpha);
+	}
+
+	if (CameraPitchCurve)
+	{
+		const float CameraPitch = -CameraPitchCurve->GetFloatValue(ZoomAlpha);
+		SpringArmComponent->SetRelativeRotation(FRotator(CameraPitch, 0.0f, 0.0f));
+	}
 }
