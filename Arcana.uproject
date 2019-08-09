@@ -73,10 +73,6 @@
 			"Enabled": false
 		},
 		{
-			"Name": "GitSourceControl",
-			"Enabled": false
-		},
-		{
 			"Name": "CLionSourceCodeAccess",
 			"Enabled": false
 		},
@@ -204,6 +200,10 @@
 		},
 		{
 			"Name": "AudioCapture",
+			"Enabled": false
+		},
+		{
+			"Name": "PerforceSourceControl",
 			"Enabled": false
 		}
 	]
