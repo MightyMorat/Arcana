@@ -4,8 +4,11 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "Engine/GameViewportClient.h"
+#include "Engine/LocalPlayer.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "InteractiveObjects/InteractiveObjectComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AArcanaPlayerController::AArcanaPlayerController()
@@ -21,9 +24,6 @@ AArcanaPlayerController::AArcanaPlayerController()
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	bShowMouseCursor = true;
-	bEnableClickEvents = true;
-	bEnableMouseOverEvents = true;
-
 	bAutoManageActiveCameraTarget = false;
 	bAttachToPawn = true;
 }
@@ -65,7 +65,21 @@ void AArcanaPlayerController::OnLeftClickPressed()
 		return;
 
 	bLMBPressed = true;
-	bEnableMouseOverEvents = false;
+
+	if (HoveredInteractiveObjectComponent != SelectedInteractiveObjectComponent)
+	{
+		if (SelectedInteractiveObjectComponent)
+		{
+			SelectedInteractiveObjectComponent->OnDeselected();
+		}
+
+		if (HoveredInteractiveObjectComponent)
+		{
+			HoveredInteractiveObjectComponent->OnSelected();
+		}
+
+		SelectedInteractiveObjectComponent = HoveredInteractiveObjectComponent;
+	}
 }
 
 void AArcanaPlayerController::OnLeftClickReleased()
@@ -74,7 +88,6 @@ void AArcanaPlayerController::OnLeftClickReleased()
 		return;
 
 	bLMBPressed = false;
-	bEnableMouseOverEvents = true;
 }
 
 void AArcanaPlayerController::OnRightClickPressed()
@@ -85,10 +98,15 @@ void AArcanaPlayerController::OnRightClickPressed()
 	bRMBPressed = true;
 	bShowMouseCursor = false;
 	GetMousePosition(MouseLocationX, MouseLocationY);
-	bEnableMouseOverEvents = false;
 
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
+
+	if (SelectedInteractiveObjectComponent)
+	{
+		SelectedInteractiveObjectComponent->OnDeselected();
+		SelectedInteractiveObjectComponent = nullptr;
+	}
 }
 
 void AArcanaPlayerController::OnRightClickReleased()
@@ -99,7 +117,6 @@ void AArcanaPlayerController::OnRightClickReleased()
 	bRMBPressed = false;
 	SetMouseLocation(FMath::TruncToInt(MouseLocationX), FMath::TruncToInt(MouseLocationY));
 	bShowMouseCursor = true;
-	bEnableMouseOverEvents = true;
 
 	FInputModeGameAndUI InputMode;
 	InputMode.SetHideCursorDuringCapture(false);
@@ -161,5 +178,53 @@ void AArcanaPlayerController::OnMouseWheel(float AxisValue)
 	{
 		const float CameraPitch = -CameraPitchCurve->GetFloatValue(ZoomAlpha);
 		SpringArmComponent->SetRelativeRotation(FRotator(CameraPitch, 0.0f, 0.0f));
+	}
+}
+
+void AArcanaPlayerController::PreProcessInput(const float DeltaTime, const bool bGamePaused)
+{
+	Super::PreProcessInput(DeltaTime, bGamePaused);
+
+	if (bGamePaused)
+		return;
+
+	if (ULocalPlayer * LocalPlayer = Cast<ULocalPlayer>(Player))
+	{
+		FVector2D MousePosition;
+		FHitResult HitResult;
+		bool bHit = false;
+		UInteractiveObjectComponent* NewHoveredInteractiveObjectComponent = nullptr;
+
+		UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
+
+		// Ignore hits if we're not over the viewport
+		if (bShowMouseCursor && IsInViewportClient(ViewportClient))
+		{
+			if (ViewportClient->GetMousePosition(MousePosition))
+			{
+				bHit = GetHitResultAtScreenPosition(MousePosition, CurrentClickTraceChannel, true, /*out*/ HitResult);
+			}
+		}
+
+		if (bHit && HitResult.Actor.IsValid())
+		{
+			NewHoveredInteractiveObjectComponent = Cast<UInteractiveObjectComponent>(HitResult.Actor.Get()->GetComponentByClass(UInteractiveObjectComponent::StaticClass()));
+		}
+
+		// Hovered object has updated. Send events.
+		if (HoveredInteractiveObjectComponent != NewHoveredInteractiveObjectComponent)
+		{
+			if (HoveredInteractiveObjectComponent)
+			{
+				HoveredInteractiveObjectComponent->OnUnhovered();
+			}
+
+			if (NewHoveredInteractiveObjectComponent)
+			{
+				NewHoveredInteractiveObjectComponent->OnHovered();
+			}
+
+			HoveredInteractiveObjectComponent = NewHoveredInteractiveObjectComponent;
+		}
 	}
 }

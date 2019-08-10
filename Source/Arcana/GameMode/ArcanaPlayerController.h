@@ -19,6 +19,7 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
+	virtual void PreProcessInput(const float DeltaTime, const bool bGamePaused) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure = false)
 	void GetIsRotating(bool& bOutIsRotating, float& OutMouseLocationX, float& OutMouseLocationY) const;
@@ -37,6 +38,12 @@ protected:
 	bool bLMBPressed = false;
 	float MouseLocationX = 0.0f;
 	float MouseLocationY = 0.0f;
+
+	UPROPERTY()
+	class UInteractiveObjectComponent* HoveredInteractiveObjectComponent = nullptr;
+
+	UPROPERTY()
+	class UInteractiveObjectComponent* SelectedInteractiveObjectComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
 	float ZoomAlpha = 0.4f;
