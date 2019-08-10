@@ -24,6 +24,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure = false)
 	void GetIsRotating(bool& bOutIsRotating, float& OutMouseLocationX, float& OutMouseLocationY) const;
 
+	UFUNCTION(BlueprintCallable)
+	void DeselectSelectedObject();
+
 protected:
 	void OnLeftClickPressed();
 	void OnLeftClickReleased();
@@ -42,7 +45,7 @@ protected:
 	UPROPERTY()
 	class UInteractiveObjectComponent* HoveredInteractiveObjectComponent = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	class UInteractiveObjectComponent* SelectedInteractiveObjectComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)

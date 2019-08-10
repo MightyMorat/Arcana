@@ -2,8 +2,24 @@
 
 #include "InteractiveObjectComponent.h"
 
+#include "Blueprint/UserWidget.h"
+#include "Components/WidgetComponent.h"
 #include "Engine.h"
 #include "GameFramework/Actor.h"
+
+UInteractiveObjectComponent::UInteractiveObjectComponent()
+{
+	static ConstructorHelpers::FClassFinder<UUserWidget> InteractOptionsWidgetClassFinder(TEXT("/Game/UI/Widgets/UI_BP_InteractOptions"));
+	if (InteractOptionsWidgetClassFinder.Succeeded())
+	{
+		InteractOptionsWidgetClass = InteractOptionsWidgetClassFinder.Class;
+
+		InteractOptionsWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractOptionsWidgetComponent"));
+		InteractOptionsWidgetComponent->SetDrawAtDesiredSize(true);
+		InteractOptionsWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+		InteractOptionsWidgetComponent->SetupAttachment(this);
+	}
+}
 
 void UInteractiveObjectComponent::OnHovered()
 {
@@ -26,7 +42,14 @@ void UInteractiveObjectComponent::OnSelected()
 	bIsSelected = true;
 
 	if (!bIsHovered)
+	{
 		SetActorOutlineEnabled(true);
+	}
+
+	if (InteractOptionsWidgetComponent)
+	{
+		InteractOptionsWidgetComponent->SetWidgetClass(InteractOptionsWidgetClass);
+	}
 }
 
 void UInteractiveObjectComponent::OnDeselected()
@@ -34,16 +57,19 @@ void UInteractiveObjectComponent::OnDeselected()
 	bIsSelected = false;
 
 	if (!bIsHovered)
+	{
 		SetActorOutlineEnabled(false);
+	}
+
+	if (InteractOptionsWidgetComponent)
+	{
+		InteractOptionsWidgetComponent->SetWidgetClass(nullptr);
+	}
 }
 
 void UInteractiveObjectComponent::SetActorOutlineEnabled(bool bEnable)
 {
-	AActor* OwningActor = GetOwner();
-	if (!OwningActor)
-		return;
-
-	for (UActorComponent* ActorComponent : OwningActor->GetComponents())
+	for (UActorComponent* ActorComponent : GetOwner()->GetComponents())
 	{
 		if (UPrimitiveComponent * PrimComp = Cast<UPrimitiveComponent>(ActorComponent))
 		{

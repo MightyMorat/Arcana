@@ -73,12 +73,12 @@ void AArcanaPlayerController::OnLeftClickPressed()
 			SelectedInteractiveObjectComponent->OnDeselected();
 		}
 
+		SelectedInteractiveObjectComponent = HoveredInteractiveObjectComponent;
+
 		if (HoveredInteractiveObjectComponent)
 		{
 			HoveredInteractiveObjectComponent->OnSelected();
 		}
-
-		SelectedInteractiveObjectComponent = HoveredInteractiveObjectComponent;
 	}
 }
 
@@ -102,11 +102,7 @@ void AArcanaPlayerController::OnRightClickPressed()
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
 
-	if (SelectedInteractiveObjectComponent)
-	{
-		SelectedInteractiveObjectComponent->OnDeselected();
-		SelectedInteractiveObjectComponent = nullptr;
-	}
+	DeselectSelectedObject();
 }
 
 void AArcanaPlayerController::OnRightClickReleased()
@@ -219,12 +215,21 @@ void AArcanaPlayerController::PreProcessInput(const float DeltaTime, const bool 
 				HoveredInteractiveObjectComponent->OnUnhovered();
 			}
 
+			HoveredInteractiveObjectComponent = NewHoveredInteractiveObjectComponent;
+
 			if (NewHoveredInteractiveObjectComponent)
 			{
 				NewHoveredInteractiveObjectComponent->OnHovered();
 			}
-
-			HoveredInteractiveObjectComponent = NewHoveredInteractiveObjectComponent;
 		}
+	}
+}
+
+void AArcanaPlayerController::DeselectSelectedObject()
+{
+	if (SelectedInteractiveObjectComponent)
+	{
+		SelectedInteractiveObjectComponent->OnDeselected();
+		SelectedInteractiveObjectComponent = nullptr;
 	}
 }
