@@ -3,6 +3,7 @@
 #include "ArcanaPlayerController.h"
 
 #include "Camera/CameraComponent.h"
+#include "Characters/ArcanaPlayerCharacter.h"
 #include "Components/InputComponent.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
@@ -10,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameMode/ArcanaGameMode.h"
 #include "InteractiveObjects/InteractiveObjectComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -53,18 +55,25 @@ void AArcanaPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
 
-	if (PlayerCharacterClass && !PlayerCharacter)
+	AttachCameraToPlayer();
+}
+
+AArcanaPlayerCharacter* AArcanaPlayerController::GetPlayerCharacter() const
+{
+	AArcanaGameMode* GameMode = Cast<AArcanaGameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
 	{
-		PlayerCharacter = GetWorld()->SpawnActor<ACharacter>(PlayerCharacterClass, aPawn->GetTransform());
-		AttachCameraToPlayer();
+		return GameMode->GetPlayerCharacter();
 	}
+
+	return nullptr;
 }
 
 void AArcanaPlayerController::AttachCameraToPlayer()
 {
-	if (GetPawn() && PlayerCharacter)
+	if (GetPawn())
 	{
-		GetPawn()->AttachToActor(PlayerCharacter, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		GetPawn()->AttachToActor(GetPlayerCharacter(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 }
 

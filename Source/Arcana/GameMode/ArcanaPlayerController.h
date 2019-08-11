@@ -6,6 +6,11 @@
 #include "GameFramework/PlayerController.h"
 #include "ArcanaPlayerController.generated.h"
 
+class AArcanaPlayerCharacter;
+class UCameraComponent;
+class UInteractiveObjectComponent;
+class USpringArmComponent;
+
 /**
  * 
  */
@@ -31,6 +36,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AttachCameraToPlayer();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure = false)
+	AArcanaPlayerCharacter* GetPlayerCharacter() const;
+
 protected:
 	void OnLeftClickPressed();
 	void OnLeftClickReleased();
@@ -47,16 +55,10 @@ protected:
 	float MouseLocationY = 0.0f;
 
 	UPROPERTY()
-	class UInteractiveObjectComponent* HoveredInteractiveObjectComponent = nullptr;
+	UInteractiveObjectComponent* HoveredInteractiveObjectComponent = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess=true))
-	class UInteractiveObjectComponent* SelectedInteractiveObjectComponent = nullptr;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class ACharacter> PlayerCharacterClass;
-
-	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	ACharacter* PlayerCharacter = nullptr;
+	UInteractiveObjectComponent* SelectedInteractiveObjectComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
 	float ZoomAlpha = 0.4f;
@@ -77,8 +79,8 @@ protected:
 	UCurveFloat* DragSpeedCurve = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class USpringArmComponent* SpringArmComponent;
+	USpringArmComponent* SpringArmComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UCameraComponent* CameraComponent;
+	UCameraComponent* CameraComponent;
 };
