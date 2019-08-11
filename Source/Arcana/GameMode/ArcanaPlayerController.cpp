@@ -206,6 +206,9 @@ void AArcanaPlayerController::OnMouseY(float AxisValue)
 
 	if (bLMBPressed)
 	{
+		bIsDragging = true;
+		DeselectSelectedObject();
+
 		if (DragSpeedCurve)
 		{
 			const float DistToMove = -AxisValue*DeltaSeconds*DragSpeedCurve->GetFloatValue(SpringArmComponent->TargetArmLength);
