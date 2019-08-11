@@ -54,6 +54,8 @@ protected:
 	float MouseLocationX = 0.0f;
 	float MouseLocationY = 0.0f;
 
+	bool bIsDragging = false;
+
 	UPROPERTY()
 	UInteractiveObjectComponent* HoveredInteractiveObjectComponent = nullptr;
 

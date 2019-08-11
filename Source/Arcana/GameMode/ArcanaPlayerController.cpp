@@ -95,29 +95,11 @@ void AArcanaPlayerController::OnLeftClickPressed()
 		return;
 
 	bLMBPressed = true;
+	bIsDragging = false;
 
 	if (HoveredInteractiveObjectComponent != SelectedInteractiveObjectComponent)
 	{
-		if (SelectedInteractiveObjectComponent)
-		{
-			SelectedInteractiveObjectComponent->OnDeselected();
-		}
-
-		SelectedInteractiveObjectComponent = HoveredInteractiveObjectComponent;
-
-		if (HoveredInteractiveObjectComponent)
-		{
-			HoveredInteractiveObjectComponent->OnSelected();
-		}
-	}
-
-	if (!HoveredInteractiveObjectComponent && bHasValidHoveredLocation)
-	{
-		AArcanaPlayerCharacter* PlayerCharacter = GetPlayerCharacter();
-		if (PlayerCharacter)
-		{
-			PlayerCharacter->MoveToLocation(HoveredLocation);
-		}
+		DeselectSelectedObject();
 	}
 }
 
@@ -127,6 +109,33 @@ void AArcanaPlayerController::OnLeftClickReleased()
 		return;
 
 	bLMBPressed = false;
+
+	if (!bIsDragging)
+	{
+		if (HoveredInteractiveObjectComponent != SelectedInteractiveObjectComponent)
+		{
+			if (SelectedInteractiveObjectComponent)
+			{
+				SelectedInteractiveObjectComponent->OnDeselected();
+			}
+
+			SelectedInteractiveObjectComponent = HoveredInteractiveObjectComponent;
+
+			if (HoveredInteractiveObjectComponent)
+			{
+				HoveredInteractiveObjectComponent->OnSelected();
+			}
+		}
+
+		if (!HoveredInteractiveObjectComponent && bHasValidHoveredLocation)
+		{
+			AArcanaPlayerCharacter* PlayerCharacter = GetPlayerCharacter();
+			if (PlayerCharacter)
+			{
+				PlayerCharacter->MoveToLocation(HoveredLocation);
+			}
+		}
+	}
 }
 
 void AArcanaPlayerController::OnRightClickPressed()
@@ -161,7 +170,7 @@ void AArcanaPlayerController::OnRightClickReleased()
 
 void AArcanaPlayerController::OnMouseX(float AxisValue)
 {
-	if (FMath::Abs(AxisValue) < 0.1) // todo[hale] - set up deadzone properly
+	if (FMath::Abs(AxisValue) < 0.01) // todo[hale] - set up deadzone properly
 		return;
 
 	AActor* PawnActor = GetPawn();
@@ -172,6 +181,9 @@ void AArcanaPlayerController::OnMouseX(float AxisValue)
 
 	if (bLMBPressed)
 	{
+		bIsDragging = true;
+		DeselectSelectedObject();
+
 		if (DragSpeedCurve)
 		{
 			GetPawn()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
@@ -187,7 +199,7 @@ void AArcanaPlayerController::OnMouseX(float AxisValue)
 
 void AArcanaPlayerController::OnMouseY(float AxisValue)
 {
-	if (FMath::Abs(AxisValue) < 0.1) // todo[hale] - set up deadzone properly
+	if (FMath::Abs(AxisValue) < 0.01) // todo[hale] - set up deadzone properly
 		return;
 
 	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
