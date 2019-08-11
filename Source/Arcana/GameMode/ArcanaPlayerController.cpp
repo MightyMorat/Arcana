@@ -111,7 +111,7 @@ void AArcanaPlayerController::OnLeftClickPressed()
 		}
 	}
 
-	if (!HoveredInteractiveObjectComponent)
+	if (!HoveredInteractiveObjectComponent && bHasValidHoveredLocation)
 	{
 		AArcanaPlayerCharacter* PlayerCharacter = GetPlayerCharacter();
 		if (PlayerCharacter)
@@ -237,6 +237,7 @@ void AArcanaPlayerController::PreProcessInput(const float DeltaTime, const bool 
 		FHitResult HitResult;
 		bool bHit = false;
 		UInteractiveObjectComponent* NewHoveredInteractiveObjectComponent = nullptr;
+		bHasValidHoveredLocation = false;
 
 		UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
 
@@ -246,6 +247,7 @@ void AArcanaPlayerController::PreProcessInput(const float DeltaTime, const bool 
 			if (ViewportClient->GetMousePosition(MousePosition))
 			{
 				bHit = GetHitResultAtScreenPosition(MousePosition, CurrentClickTraceChannel, true, /*out*/ HitResult);
+				bHasValidHoveredLocation = bHit;
 				HoveredLocation = HitResult.Location;
 			}
 		}

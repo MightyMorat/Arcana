@@ -57,6 +57,7 @@ protected:
 	UPROPERTY()
 	UInteractiveObjectComponent* HoveredInteractiveObjectComponent = nullptr;
 
+	bool bHasValidHoveredLocation = false;
 	FVector HoveredLocation = FVector::ZeroVector;
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess=true))
