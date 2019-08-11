@@ -11,4 +11,8 @@ class ARCANA_API AArcanaPlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
+	AArcanaPlayerCharacter();
+
+	void MoveToLocation(const FVector& TargetLocation);
 };

@@ -110,6 +110,15 @@ void AArcanaPlayerController::OnLeftClickPressed()
 			HoveredInteractiveObjectComponent->OnSelected();
 		}
 	}
+
+	if (!HoveredInteractiveObjectComponent)
+	{
+		AArcanaPlayerCharacter* PlayerCharacter = GetPlayerCharacter();
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->MoveToLocation(HoveredLocation);
+		}
+	}
 }
 
 void AArcanaPlayerController::OnLeftClickReleased()
@@ -237,6 +246,7 @@ void AArcanaPlayerController::PreProcessInput(const float DeltaTime, const bool 
 			if (ViewportClient->GetMousePosition(MousePosition))
 			{
 				bHit = GetHitResultAtScreenPosition(MousePosition, CurrentClickTraceChannel, true, /*out*/ HitResult);
+				HoveredLocation = HitResult.Location;
 			}
 		}
 
