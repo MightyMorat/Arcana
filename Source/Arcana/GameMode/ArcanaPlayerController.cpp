@@ -170,7 +170,7 @@ void AArcanaPlayerController::OnRightClickReleased()
 
 void AArcanaPlayerController::OnMouseX(float AxisValue)
 {
-	if (FMath::Abs(AxisValue) < 0.01) // todo[hale] - set up deadzone properly
+	if (FMath::Abs(AxisValue) < 0.05) // todo[hale] - set up deadzone properly
 		return;
 
 	AActor* PawnActor = GetPawn();
@@ -199,7 +199,7 @@ void AArcanaPlayerController::OnMouseX(float AxisValue)
 
 void AArcanaPlayerController::OnMouseY(float AxisValue)
 {
-	if (FMath::Abs(AxisValue) < 0.01) // todo[hale] - set up deadzone properly
+	if (FMath::Abs(AxisValue) < 0.05) // todo[hale] - set up deadzone properly
 		return;
 
 	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
