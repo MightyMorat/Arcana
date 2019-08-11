@@ -20,12 +20,16 @@ public:
 	virtual void BeginPlay() override;
 	virtual void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
 	virtual void PreProcessInput(const float DeltaTime, const bool bGamePaused) override;
+	virtual void OnPossess(APawn* aPawn) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure = false)
 	void GetIsRotating(bool& bOutIsRotating, float& OutMouseLocationX, float& OutMouseLocationY) const;
 
 	UFUNCTION(BlueprintCallable)
 	void DeselectSelectedObject();
+
+	UFUNCTION(BlueprintCallable)
+	void AttachCameraToPlayer();
 
 protected:
 	void OnLeftClickPressed();
@@ -47,6 +51,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess=true))
 	class UInteractiveObjectComponent* SelectedInteractiveObjectComponent = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ACharacter> PlayerCharacterClass;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	ACharacter* PlayerCharacter = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
 	float ZoomAlpha = 0.4f;

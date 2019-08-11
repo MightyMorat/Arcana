@@ -6,6 +6,8 @@
 #include "Components/InputComponent.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InteractiveObjects/InteractiveObjectComponent.h"
@@ -45,6 +47,25 @@ void AArcanaPlayerController::BeginPlay()
 	InputComponent->BindAxisKey(EKeys::MouseX, this, &AArcanaPlayerController::OnMouseX);
 	InputComponent->BindAxisKey(EKeys::MouseY, this, &AArcanaPlayerController::OnMouseY);
 	InputComponent->BindAxisKey(EKeys::MouseWheelAxis, this, &AArcanaPlayerController::OnMouseWheel);
+}
+
+void AArcanaPlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+
+	if (PlayerCharacterClass && !PlayerCharacter)
+	{
+		PlayerCharacter = GetWorld()->SpawnActor<ACharacter>(PlayerCharacterClass, aPawn->GetTransform());
+		AttachCameraToPlayer();
+	}
+}
+
+void AArcanaPlayerController::AttachCameraToPlayer()
+{
+	if (GetPawn() && PlayerCharacter)
+	{
+		GetPawn()->AttachToActor(PlayerCharacter, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
 }
 
 void AArcanaPlayerController::CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult)
@@ -122,6 +143,9 @@ void AArcanaPlayerController::OnRightClickReleased()
 
 void AArcanaPlayerController::OnMouseX(float AxisValue)
 {
+	if (FMath::Abs(AxisValue) < 0.1) // todo[hale] - set up deadzone properly
+		return;
+
 	AActor* PawnActor = GetPawn();
 	if (!PawnActor)
 		return;
@@ -132,6 +156,7 @@ void AArcanaPlayerController::OnMouseX(float AxisValue)
 	{
 		if (DragSpeedCurve)
 		{
+			GetPawn()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 			const float DistToMove = -AxisValue * DeltaSeconds * DragSpeedCurve->GetFloatValue(SpringArmComponent->TargetArmLength);
 			PawnActor->AddActorLocalOffset(FVector(0.0f, DistToMove, 0.0f));
 		}
@@ -144,15 +169,19 @@ void AArcanaPlayerController::OnMouseX(float AxisValue)
 
 void AArcanaPlayerController::OnMouseY(float AxisValue)
 {
+	if (FMath::Abs(AxisValue) < 0.1) // todo[hale] - set up deadzone properly
+		return;
+
 	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
 
 	if (bLMBPressed)
 	{
 		if (DragSpeedCurve)
 		{
-			const float DistToMove = -AxisValue * DeltaSeconds * DragSpeedCurve->GetFloatValue(SpringArmComponent->TargetArmLength);
+			const float DistToMove = -AxisValue*DeltaSeconds*DragSpeedCurve->GetFloatValue(SpringArmComponent->TargetArmLength);
 			if (GetPawn())
 			{
+				GetPawn()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 				GetPawn()->AddActorLocalOffset(FVector(DistToMove, 0.0f, 0.0f));
 			}
 		}
@@ -163,7 +192,7 @@ void AArcanaPlayerController::OnMouseWheel(float AxisValue)
 {
 	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
 
-	ZoomAlpha = FMath::Clamp(ZoomAlpha+AxisValue*DeltaSeconds* ZoomAlphaRate, 0.0f, 1.0f);
+	ZoomAlpha = FMath::Clamp(ZoomAlpha + AxisValue*DeltaSeconds*ZoomAlphaRate, 0.0f, 1.0f);
 
 	if (CameraDistanceCurve)
 	{
