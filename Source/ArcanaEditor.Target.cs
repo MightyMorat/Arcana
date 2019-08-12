@@ -9,6 +9,6 @@ public class ArcanaEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 
-		ExtraModuleNames.AddRange( new string[] { "Arcana" } );
+		ExtraModuleNames.AddRange( new string[] { "Arcana", "ArcanaEditor" } );
 	}
 }
