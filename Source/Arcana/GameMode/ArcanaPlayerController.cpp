@@ -47,7 +47,6 @@ void AArcanaPlayerController::BeginPlay()
 	InputComponent->BindKey(EKeys::RightMouseButton, EInputEvent::IE_Released, this, &AArcanaPlayerController::OnRightClickReleased);
 
 	InputComponent->BindAxisKey(EKeys::MouseX, this, &AArcanaPlayerController::OnMouseX);
-	InputComponent->BindAxisKey(EKeys::MouseY, this, &AArcanaPlayerController::OnMouseY);
 	InputComponent->BindAxisKey(EKeys::MouseWheelAxis, this, &AArcanaPlayerController::OnMouseWheel);
 }
 
@@ -97,6 +96,12 @@ void AArcanaPlayerController::OnLeftClickPressed()
 	bLMBPressed = true;
 	bIsDragging = false;
 
+	if (bHasValidHoveredLocation)
+	{
+		bHasValidDragLocation = true;
+		DragLocation = HoveredLocation;
+	}
+
 	if (HoveredInteractiveObjectComponent != SelectedInteractiveObjectComponent)
 	{
 		DeselectSelectedObject();
@@ -109,6 +114,7 @@ void AArcanaPlayerController::OnLeftClickReleased()
 		return;
 
 	bLMBPressed = false;
+	bHasValidDragLocation = false;
 
 	if (!bIsDragging)
 	{
@@ -136,6 +142,8 @@ void AArcanaPlayerController::OnLeftClickReleased()
 			}
 		}
 	}
+
+	bIsDragging = false;
 }
 
 void AArcanaPlayerController::OnRightClickPressed()
@@ -179,45 +187,9 @@ void AArcanaPlayerController::OnMouseX(float AxisValue)
 
 	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
 
-	if (bLMBPressed)
-	{
-		bIsDragging = true;
-		DeselectSelectedObject();
-
-		if (DragSpeedCurve)
-		{
-			GetPawn()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			const float DistToMove = -AxisValue * DeltaSeconds * DragSpeedCurve->GetFloatValue(SpringArmComponent->TargetArmLength);
-			PawnActor->AddActorLocalOffset(FVector(0.0f, DistToMove, 0.0f));
-		}
-	}
-	else if (bRMBPressed)
+	if (bRMBPressed)
 	{
 		RotationInput = FRotator(0.0f, AxisValue * DeltaSeconds * RotationSpeed, 0.0f);
-	}
-}
-
-void AArcanaPlayerController::OnMouseY(float AxisValue)
-{
-	if (FMath::Abs(AxisValue) < 0.05) // todo[hale] - set up deadzone properly
-		return;
-
-	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
-
-	if (bLMBPressed)
-	{
-		bIsDragging = true;
-		DeselectSelectedObject();
-
-		if (DragSpeedCurve)
-		{
-			const float DistToMove = -AxisValue*DeltaSeconds*DragSpeedCurve->GetFloatValue(SpringArmComponent->TargetArmLength);
-			if (GetPawn())
-			{
-				GetPawn()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-				GetPawn()->AddActorLocalOffset(FVector(DistToMove, 0.0f, 0.0f));
-			}
-		}
 	}
 }
 
@@ -285,6 +257,53 @@ void AArcanaPlayerController::PreProcessInput(const float DeltaTime, const bool 
 			if (NewHoveredInteractiveObjectComponent)
 			{
 				NewHoveredInteractiveObjectComponent->OnHovered();
+			}
+		}
+	}
+}
+
+void AArcanaPlayerController::PostProcessInput(const float DeltaTime, const bool bGamePaused)
+{
+	Super::PostProcessInput(DeltaTime, bGamePaused);
+
+	if (ULocalPlayer * LocalPlayer = Cast<ULocalPlayer>(Player))
+	{
+		UGameViewportClient* ViewportClient = LocalPlayer->ViewportClient;
+		if (bShowMouseCursor && bLMBPressed && bHasValidDragLocation && IsInViewportClient(ViewportClient))
+		{
+			FVector2D MousePosition;
+			if (ViewportClient->GetMousePosition(MousePosition))
+			{
+				FVector WorldOrigin;
+				FVector WorldDirection;
+				if (UGameplayStatics::DeprojectScreenToWorld(this, MousePosition, WorldOrigin, WorldDirection) == true)
+				{
+					// Find the intersection between the line under the mouse and a horizontal plane through the DragLocation
+					if (FMath::Abs(WorldDirection.Z) > SMALL_NUMBER)
+					{
+						float T = (DragLocation.Z - WorldOrigin.Z) / WorldDirection.Z;
+						FVector IntersectionPoint = WorldOrigin + T * WorldDirection;
+
+						FVector TargetDisplacement = DragLocation - IntersectionPoint;
+						TargetDisplacement.Z = 0.0f; // Just to avoid any drift from precision errors
+
+						// Consider the player to be dragging only after pulling a certain distance
+						if (!bIsDragging && TargetDisplacement.SizeSquared2D() >= DragDistanceThreshold * DragDistanceThreshold)
+						{
+							bIsDragging = true;
+						}
+
+						if (bIsDragging)
+						{
+							AActor* PawnActor = GetPawn();
+							if (PawnActor)
+							{
+								PawnActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+								PawnActor->AddActorWorldOffset(TargetDisplacement);
+							}
+						}
+					}
+				}
 			}
 		}
 	}

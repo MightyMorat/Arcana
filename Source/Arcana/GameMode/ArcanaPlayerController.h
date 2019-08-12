@@ -25,6 +25,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
 	virtual void PreProcessInput(const float DeltaTime, const bool bGamePaused) override;
+	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
 	virtual void OnPossess(APawn* aPawn) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure = false)
@@ -46,7 +47,6 @@ protected:
 	void OnRightClickReleased();
 
 	void OnMouseX(float AxisValue);
-	void OnMouseY(float AxisValue);
 	void OnMouseWheel(float AxisValue);
 
 	bool bRMBPressed = false;
@@ -54,7 +54,12 @@ protected:
 	float MouseLocationX = 0.0f;
 	float MouseLocationY = 0.0f;
 
+	bool bHasValidDragLocation = false;
+	FVector DragLocation = FVector::ZeroVector;
 	bool bIsDragging = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DragDistanceThreshold = 40.0f;
 
 	UPROPERTY()
 	UInteractiveObjectComponent* HoveredInteractiveObjectComponent = nullptr;
@@ -79,9 +84,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UCurveFloat* CameraPitchCurve = nullptr;
-
-	UPROPERTY(EditDefaultsOnly)
-	UCurveFloat* DragSpeedCurve = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USpringArmComponent* SpringArmComponent;
