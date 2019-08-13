@@ -8,8 +8,8 @@ public class ArcanaEditor : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Arcana", "Core", "CoreUObject", "Engine" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Arcana", "Core", "CoreUObject", "Engine", "UnrealEd" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
+		PrivateDependencyModuleNames.AddRange(new string[] {  });
 	}
 }

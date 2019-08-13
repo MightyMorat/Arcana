@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Needs/ArcanaNeed.h"
+
 #include "ArcanaGameMode.generated.h"
 
 class AArcanaPlayerCharacter;
@@ -21,12 +23,20 @@ public:
 
 	AArcanaPlayerCharacter* GetPlayerCharacter() const { return PlayerCharacter; }
 
+	int32 GetCurrency() const { return Currency; }
+
+
+protected:
 	/** The default pawn class used by players. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Classes)
 	TSubclassOf<class ACharacter> PlayerCharacterClass;
 
-protected:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	AArcanaPlayerCharacter* PlayerCharacter = nullptr;
-	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	TArray<FArcanaNeedState> NeedStates;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	int32 Currency = 0;
 };
