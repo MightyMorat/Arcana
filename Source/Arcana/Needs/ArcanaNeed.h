@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
+
 #include "ArcanaNeed.generated.h"
 
 USTRUCT(BlueprintType)
-struct ARCANA_API FArcanaNeed
+struct ARCANA_API FArcanaNeed : public FTableRowBase
 {
 	GENERATED_BODY()
 

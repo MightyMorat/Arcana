@@ -2,6 +2,8 @@
 
 #include "ArcanaEditor.h"
 #include "Modules/ModuleManager.h"
+#include "Needs/ArcanaNeedCustomization.h"
+#include "PropertyEditorModule.h"
 
 IMPLEMENT_GAME_MODULE(FArcanaEditorModule, ArcanaEditor);
 
@@ -12,6 +14,11 @@ DEFINE_LOG_CATEGORY(ArcanaEditor)
 void FArcanaEditorModule::StartupModule()
 {
 	UE_LOG(ArcanaEditor, Display, TEXT("Module Started"));
+
+	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+
+	//Custom properties
+	PropertyModule.RegisterCustomPropertyTypeLayout("ArcanaNeed", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FArcanaNeedCustomization::MakeInstance));
 }
 
 void FArcanaEditorModule::ShutdownModule()
