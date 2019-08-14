@@ -8,7 +8,7 @@
 #include "ArcanaNeed.generated.h"
 
 USTRUCT(BlueprintType)
-struct ARCANA_API FArcanaNeed : public FTableRowBase
+struct ARCANA_API FArcanaNeed
 {
 	GENERATED_BODY()
 
@@ -18,7 +18,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct ARCANA_API FArcanaNeedDefinition
+struct ARCANA_API FArcanaNeedDefinition : public FTableRowBase
 {
 	GENERATED_BODY()
 
