@@ -2,7 +2,7 @@
 
 #include "ArcanaEditor.h"
 #include "Modules/ModuleManager.h"
-#include "Needs/ArcanaNeedCustomization.h"
+#include "DetailCustomization/ArcanaNeedCustomization.h"
 #include "PropertyEditorModule.h"
 
 IMPLEMENT_GAME_MODULE(FArcanaEditorModule, ArcanaEditor);
