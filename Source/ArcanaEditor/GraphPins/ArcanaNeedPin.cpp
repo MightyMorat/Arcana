@@ -66,19 +66,7 @@ void SArcanaNeedPin::OnSelectionChanged(TSharedPtr<FName> ItemSelected, ESelectI
 	FString CurrentDefaultValue = GraphPinObj->GetDefaultAsString();
 	FString attribute = (*ItemSelected).ToString();
 
-	//here we construct, setter for value in struct.
-	//open it with (
-	FString AttributeString = TEXT("(");
-	//now set here proerty name from USTRUCT(), \" - will add opening "
-	// so it will look like AttributeName="
-	AttributeString += TEXT("NeedId=\"");
-	//add value you want to set to your property"
-	AttributeString += attribute;
-	//close with "
-	AttributeString += TEXT("\"");
-	//and at last add ) so it will look like (AttributeName="Value");
-	AttributeString += TEXT(")");
-	//and here we set our value to parameter if it different than last one.
+	FString AttributeString = FString::Printf(TEXT("(NeedId=\"%s\")"), *attribute);	
 	if (!CurrentDefaultValue.Equals(AttributeString))
 	{
 		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, AttributeString);
