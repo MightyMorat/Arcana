@@ -25,6 +25,11 @@ public:
 
 	int32 GetCurrency() const { return Currency; }
 
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	void GetNeedState(const FArcanaNeed& Need, bool& bFound, FArcanaNeedState& NeedState) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	TArray<FArcanaNeed> GetActiveNeeds() const;
 
 protected:
 	/** The default pawn class used by players. */
@@ -34,7 +39,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	AArcanaPlayerCharacter* PlayerCharacter = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	TArray<FArcanaNeedState> NeedStates;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))

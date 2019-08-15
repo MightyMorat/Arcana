@@ -19,3 +19,30 @@ APawn* AArcanaGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* 
 
 	return Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
 }
+
+void AArcanaGameMode::GetNeedState(const FArcanaNeed& Need, bool& bFound, FArcanaNeedState& OutNeedState) const
+{
+	bFound = false;
+	OutNeedState = FArcanaNeedState();
+
+	for (const FArcanaNeedState& NeedState : NeedStates)
+	{
+		if (NeedState.Need == Need)
+		{
+			bFound = true;
+			OutNeedState = NeedState;
+			return;
+		}
+	}
+}
+
+TArray<FArcanaNeed> AArcanaGameMode::GetActiveNeeds() const
+{
+	TArray<FArcanaNeed> ActiveNeeds;
+	for (const FArcanaNeedState& NeedState : NeedStates)
+	{
+		ActiveNeeds.Add(NeedState.Need);
+	}
+
+	return ActiveNeeds;
+}

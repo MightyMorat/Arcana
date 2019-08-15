@@ -13,8 +13,10 @@ struct ARCANA_API FArcanaNeed
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere)
 	FName NeedId;
+
+	FORCEINLINE bool operator==(const FArcanaNeed& OtherNeed) const	{ return NeedId == OtherNeed.NeedId; }
 };
 
 USTRUCT(BlueprintType)
