@@ -19,6 +19,7 @@ private:
 	TSharedRef<SWidget> OnGenerateNeedsComboBox(TSharedPtr<FName> InItem);
 	void OnSelectionChanged(TSharedPtr<FName> InItem, ESelectInfo::Type SelectInfo);
 	FText CreateNeedsComboBoxContent() const;
+	void OnPropertyValueChanged();
 
 	TSharedPtr<SComboBox<TSharedPtr<FName>>> NeedsComboBox;
 	TSharedPtr<IPropertyHandle> NeedIdPropertyHandle;

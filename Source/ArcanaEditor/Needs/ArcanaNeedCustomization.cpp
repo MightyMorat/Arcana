@@ -32,6 +32,15 @@ void FArcanaNeedCustomization::CustomizeHeader(TSharedRef<class IPropertyHandle>
 
 	check(NeedIdPropertyHandle.IsValid());
 
+	StructPropertyHandle->SetOnPropertyResetToDefault(FSimpleDelegate::CreateSP(this, &FArcanaNeedCustomization::OnPropertyValueChanged));
+
+	TSharedPtr<IPropertyHandle> ParentProperty = StructPropertyHandle->GetParentHandle();
+	while (ParentProperty.IsValid())
+	{
+		ParentProperty->SetOnPropertyResetToDefault(FSimpleDelegate::CreateSP(this, &FArcanaNeedCustomization::OnPropertyValueChanged));
+		ParentProperty = ParentProperty->GetParentHandle();
+	}
+
 	NeedOptions.Empty();
 	NeedOptions.Add(MakeShareable(new FName(TEXT("None"))));
 
@@ -86,6 +95,23 @@ TSharedRef<SWidget> FArcanaNeedCustomization::OnGenerateNeedsComboBox(TSharedPtr
 void FArcanaNeedCustomization::OnSelectionChanged(TSharedPtr<FName> InItem, ESelectInfo::Type SelectInfo)
 {
 	NeedIdPropertyHandle->SetValue(*InItem.Get());
+}
+
+void FArcanaNeedCustomization::OnPropertyValueChanged()
+{
+	FName CurrentlySelectedNeed;
+	NeedIdPropertyHandle->GetValue(CurrentlySelectedNeed);
+	int32 CurrentlySelectedIndex = 0;
+	for (int32 i = 0; i < NeedOptions.Num(); ++i)
+	{
+		if (*NeedOptions[i].Get() == CurrentlySelectedNeed)
+		{
+			CurrentlySelectedIndex = i;
+			break;
+		}
+	}
+
+	NeedsComboBox->SetSelectedItem(NeedOptions[CurrentlySelectedIndex]);
 }
 
 FText FArcanaNeedCustomization::CreateNeedsComboBoxContent() const
