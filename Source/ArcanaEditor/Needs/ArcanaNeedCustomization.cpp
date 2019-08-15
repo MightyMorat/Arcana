@@ -5,6 +5,7 @@
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"
 #include "PropertyHandle.h"
+#include "Settings/ArcanaSettings.h"
 #include "Widgets/Text/STextBlock.h"
 
 #define LOCTEXT_NAMESPACE "ArcanaNeedCustomization"
@@ -33,9 +34,16 @@ void FArcanaNeedCustomization::CustomizeHeader(TSharedRef<class IPropertyHandle>
 
 	NeedOptions.Empty();
 	NeedOptions.Add(MakeShareable(new FName(TEXT("None"))));
-	NeedOptions.Add(MakeShareable(new FName(TEXT("Health"))));
-	NeedOptions.Add(MakeShareable(new FName(TEXT("Energy"))));
-	NeedOptions.Add(MakeShareable(new FName(TEXT("Sanity"))));
+
+	UDataTable* NeedsDataTable = UArcanaSettings::Get()->NeedsDataTable.LoadSynchronous();
+	if (NeedsDataTable)
+	{
+		TArray<FName> NeedIds = NeedsDataTable->GetRowNames();
+		for (const FName& NeedId : NeedIds)
+		{
+			NeedOptions.Add(MakeShareable(new FName(NeedId)));
+		}
+	}
 
 	FName CurrentlySelectedNeed;
 	NeedIdPropertyHandle->GetValue(CurrentlySelectedNeed);
