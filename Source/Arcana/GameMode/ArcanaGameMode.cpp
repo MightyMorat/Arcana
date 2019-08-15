@@ -20,7 +20,7 @@ APawn* AArcanaGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* 
 	return Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
 }
 
-void AArcanaGameMode::GetNeedState(const FArcanaNeed& Need, bool& bFound, FArcanaNeedState& OutNeedState) const
+void AArcanaGameMode::GetNeedState(FArcanaNeed Need, bool& bFound, FArcanaNeedState& OutNeedState) const
 {
 	bFound = false;
 	OutNeedState = FArcanaNeedState();

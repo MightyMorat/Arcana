@@ -5,7 +5,7 @@
 
 #include "Settings/ArcanaSettings.h"
 
-void UArcanaFunctionLibrary::GetNeedDefinition(const FArcanaNeed& Need, bool& bFound, FArcanaNeedDefinition& NeedDefinition)
+void UArcanaFunctionLibrary::GetNeedDefinition(FArcanaNeed Need, bool& bFound, FArcanaNeedDefinition& NeedDefinition)
 {
 	bFound = false;
 	NeedDefinition = FArcanaNeedDefinition();

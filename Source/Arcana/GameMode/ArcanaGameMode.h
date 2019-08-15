@@ -26,7 +26,7 @@ public:
 	int32 GetCurrency() const { return Currency; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
-	void GetNeedState(const FArcanaNeed& Need, bool& bFound, FArcanaNeedState& NeedState) const;
+	void GetNeedState(FArcanaNeed Need, bool& bFound, FArcanaNeedState& NeedState) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
 	TArray<FArcanaNeed> GetActiveNeeds() const;
