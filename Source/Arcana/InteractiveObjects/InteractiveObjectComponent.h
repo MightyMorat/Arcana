@@ -6,6 +6,7 @@
 #include "Components/SceneComponent.h"
 #include "InteractiveObjectComponent.generated.h"
 
+class UArcanaActionGroup;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ARCANA_API UInteractiveObjectComponent : public USceneComponent
@@ -28,6 +29,9 @@ protected:
 
 	UPROPERTY()
 	class UWidgetComponent* InteractOptionsWidgetComponent = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UArcanaActionGroup* ActionGroup = nullptr;
 
 	bool bIsHovered = false;
 	bool bIsSelected = false;
