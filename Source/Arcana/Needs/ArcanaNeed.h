@@ -7,6 +7,14 @@
 
 #include "ArcanaNeed.generated.h"
 
+UENUM(BlueprintType)
+enum class ENeedSatisfaction : uint8
+{
+	Low,
+	Medium,
+	High
+};
+
 USTRUCT(BlueprintType)
 struct ARCANA_API FArcanaNeed
 {
@@ -26,13 +34,7 @@ struct ARCANA_API FArcanaNeedDefinition : public FTableRowBase
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FName Name = NAME_None;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FName Description = NAME_None;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	UTexture2D* IconTexture = nullptr;
+	UDataAsset* UIData = nullptr;
 };
 
 USTRUCT(BlueprintType)
@@ -46,5 +48,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float Value = 1.0f;
+
+	UPROPERTY(BlueprintReadOnly)
+	float Rate = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly)
+	ENeedSatisfaction NeedSatisfaction = ENeedSatisfaction::High;
 
 };

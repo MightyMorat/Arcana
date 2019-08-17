@@ -19,7 +19,10 @@ class ARCANA_API AArcanaGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+	AArcanaGameMode();
+
 	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
+	virtual void Tick(float DeltaSeconds);
 
 	AArcanaPlayerCharacter* GetPlayerCharacter() const { return PlayerCharacter; }
 

@@ -18,6 +18,14 @@ class ARCANA_API UArcanaSettings : public UDeveloperSettings
 public:
 	static UArcanaSettings* Get() { return GetMutableDefault<UArcanaSettings>(); }
 
-	UPROPERTY(EditAnywhere, config, Category = "Data Tables")
+	UPROPERTY(EditAnywhere, config, Category = "Needs")
 	TAssetPtr<UDataTable> NeedsDataTable;
+
+	/** The minimum need value for 'High' satisfaction */
+	UPROPERTY(EditAnywhere, config, Category = "Needs")
+	float HighNeedThreshold = 0.7f;
+
+	/** The minimum need value for 'Medium' satisfaction */
+	UPROPERTY(EditAnywhere, config, Category = "Needs")
+	float MediumNeedThreshold = 0.3f;
 };

@@ -5,6 +5,12 @@
 
 #include "Characters/ArcanaPlayerCharacter.h"
 #include "Engine/World.h"
+#include "Settings/ArcanaSettings.h"
+
+AArcanaGameMode::AArcanaGameMode()
+{
+	PrimaryActorTick.bCanEverTick = true;
+}
 
 APawn* AArcanaGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
 {
@@ -45,4 +51,34 @@ TArray<FArcanaNeed> AArcanaGameMode::GetActiveNeeds() const
 	}
 
 	return ActiveNeeds;
+}
+
+void AArcanaGameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	const UArcanaSettings* ArcanaSettings = UArcanaSettings::Get();
+
+	for (FArcanaNeedState& NeedState : NeedStates)
+	{
+		// todo[hale] - calculate rate from buffs
+
+		// Update value based on current rate
+		NeedState.Value += DeltaSeconds*NeedState.Rate;
+		NeedState.Value = FMath::Clamp(NeedState.Value, 0.0f, 1.0f);
+
+		// Calculate satisfaction from value thresholds
+		if (NeedState.Value >= ArcanaSettings->HighNeedThreshold)
+		{
+			NeedState.NeedSatisfaction = ENeedSatisfaction::High;
+		}
+		else if (NeedState.Value >= ArcanaSettings->MediumNeedThreshold)
+		{
+			NeedState.NeedSatisfaction = ENeedSatisfaction::Medium;
+		}
+		else
+		{
+			NeedState.NeedSatisfaction = ENeedSatisfaction::Low;
+		}
+	}
 }
