@@ -59,10 +59,26 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 
 	const UArcanaSettings* ArcanaSettings = UArcanaSettings::Get();
 
+	// Clear last frame's data
 	for (FArcanaNeedState& NeedState : NeedStates)
 	{
-		// todo[hale] - calculate rate from buffs
+		NeedState.Rate = 0.0f;
+	}
 
+	// Accumulate need rates from buffs
+	for (UArcanaBuffData* Buff : Buffs)
+	{
+		for (FArcanaNeedState& NeedState : NeedStates)
+		{
+			if (float* ModifierValue = Buff->NeedRateModifiers.Find(NeedState.Need))
+			{
+				NeedState.Rate += *ModifierValue;
+			}
+		}
+	}
+
+	for (FArcanaNeedState& NeedState : NeedStates)
+	{
 		// Update value based on current rate
 		NeedState.Value += DeltaSeconds*NeedState.Rate;
 		NeedState.Value = FMath::Clamp(NeedState.Value, 0.0f, 1.0f);

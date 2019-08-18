@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Buffs/ArcanaBuffData.h"
 #include "GameFramework/GameModeBase.h"
 #include "Needs/ArcanaNeed.h"
 
@@ -34,6 +36,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
 	TArray<FArcanaNeed> GetActiveNeeds() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	TArray<UArcanaBuffData*> GetActiveBuffs() const { return Buffs; }
+
 protected:
 	/** The default pawn class used by players. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Classes)
@@ -47,4 +52,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	int32 Currency = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+	TArray<UArcanaBuffData*> Buffs;
 };

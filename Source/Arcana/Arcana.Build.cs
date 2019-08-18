@@ -8,7 +8,17 @@ public class Arcana : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "SlateCore", "Slate", "UMG", "AIModule" });
+		PublicDependencyModuleNames.AddRange(new string[] {
+            "Core",
+            "CoreUObject",
+            "Engine",
+            "InputCore",
+            "SlateCore",
+            "Slate",
+            "UMG",
+            "AIModule",
+            "GameplayTags"
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

@@ -27,6 +27,11 @@ public:
 	FORCEINLINE bool operator==(const FArcanaNeed& OtherNeed) const	{ return NeedId == OtherNeed.NeedId; }
 };
 
+FORCEINLINE uint32 GetTypeHash(const FArcanaNeed& Need)
+{
+	return GetTypeHash(Need.NeedId);
+}
+
 USTRUCT(BlueprintType)
 struct ARCANA_API FArcanaNeedDefinition : public FTableRowBase
 {
@@ -46,7 +51,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FArcanaNeed Need;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (DefaultValue = "1.0f"))
 	float Value = 1.0f;
 
 	UPROPERTY(BlueprintReadOnly)
