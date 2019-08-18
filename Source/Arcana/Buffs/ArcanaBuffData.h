@@ -12,7 +12,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class ARCANA_API UArcanaBuffData : public UDataAsset
 {
 	GENERATED_BODY()
@@ -21,9 +21,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Tags")
 	FGameplayTagContainer BuffTags;
 
-	UPROPERTY(EditAnywhere, Category = "NeedModifiers")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NeedModifiers")
 	TMap<FArcanaNeed, float> NeedRateModifiers;
 
-	UPROPERTY(EditAnywhere, Category = "UI")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	UDataAsset* UIData = nullptr;
 };
