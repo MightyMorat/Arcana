@@ -4,6 +4,7 @@
 #include "ArcanaGameMode.h"
 
 #include "Characters/ArcanaPlayerCharacter.h"
+#include "Conditions//ArcanaCondition.h"
 #include "Engine/World.h"
 #include "Settings/ArcanaSettings.h"
 
@@ -68,6 +69,20 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 	// Accumulate need rates from buffs
 	for (UArcanaBuffData* Buff : Buffs)
 	{
+		bool bIsBuffActive = true;
+
+		for (UArcanaCondition* Condition : Buff->OngoingConditions)
+		{
+			if (Condition && !Condition->IsConditionMet())
+			{
+				bIsBuffActive = false;
+				break;
+			}
+		}
+
+		if (!bIsBuffActive)
+			continue;
+
 		for (FArcanaNeedState& NeedState : NeedStates)
 		{
 			if (float* ModifierValue = Buff->NeedRateModifiers.Find(NeedState.Need))
