@@ -21,7 +21,7 @@ enum class EBuffUpdateTime : uint8
 /**
  * 
  */
-UCLASS(BlueprintType, AutoExpandCategories = ("Conditions"))
+UCLASS(BlueprintType, AutoExpandCategories = ("Conditions", "NeedModifiers"))
 class ARCANA_API UArcanaBuffData : public UDataAsset
 {
 	GENERATED_BODY()
