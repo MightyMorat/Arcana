@@ -3,6 +3,8 @@
 
 #include "ArcanaGameMode.h"
 
+#include "Buffs/ArcanaBuff.h"
+#include "Buffs/ArcanaBuffData.h"
 #include "Characters/ArcanaPlayerCharacter.h"
 #include "Conditions//ArcanaCondition.h"
 #include "Engine/World.h"
@@ -11,6 +13,17 @@
 AArcanaGameMode::AArcanaGameMode()
 {
 	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AArcanaGameMode::BeginPlay()
+{
+	// Add starting buffs
+	for (UArcanaBuffData* BuffData : StartingBuffs)
+	{
+		UArcanaBuff* Buff = NewObject<UArcanaBuff>();
+		Buff->BuffData = BuffData;
+		Buffs.Add(Buff);
+	}
 }
 
 APawn* AArcanaGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
@@ -60,37 +73,15 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 
 	const UArcanaSettings* ArcanaSettings = UArcanaSettings::Get();
 
-	// Clear last frame's data
+	// Clear last frame's rate data
 	for (FArcanaNeedState& NeedState : NeedStates)
 	{
 		NeedState.Rate = 0.0f;
 	}
 
-	// Accumulate need rates from buffs
-	for (UArcanaBuffData* Buff : Buffs)
-	{
-		bool bIsBuffActive = true;
-
-		for (UArcanaCondition* Condition : Buff->OngoingConditions)
-		{
-			if (Condition && !Condition->IsConditionMet())
-			{
-				bIsBuffActive = false;
-				break;
-			}
-		}
-
-		if (!bIsBuffActive)
-			continue;
-
-		for (FArcanaNeedState& NeedState : NeedStates)
-		{
-			if (float* ModifierValue = Buff->NeedRateModifiers.Find(NeedState.Need))
-			{
-				NeedState.Rate += *ModifierValue;
-			}
-		}
-	}
+	// Update buffs, accumulating tags and effects
+	ActiveBuffTags = UpdateBuffs(EBuffUpdateTime::Default);
+	ActiveBuffTags.AppendTags(UpdateBuffs(EBuffUpdateTime::LateUpdate));
 
 	for (FArcanaNeedState& NeedState : NeedStates)
 	{
@@ -112,4 +103,63 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 			NeedState.NeedSatisfaction = ENeedSatisfaction::Low;
 		}
 	}
+}
+
+FGameplayTagContainer AArcanaGameMode::UpdateBuffs(EBuffUpdateTime UpdateTime)
+{
+	FGameplayTagContainer AccumulatedBuffTags;
+
+	// Accumulate need rates from buffs
+	for (UArcanaBuff* Buff : Buffs)
+	{
+		Buff->bIsActive = true;
+		UArcanaBuffData* BuffData = Buff->BuffData;
+		if (!BuffData)
+		{
+			Buff->bIsActive = false;
+			continue;
+		}
+
+		for (UArcanaCondition* Condition : BuffData->OngoingConditions)
+		{
+			if (Condition && !Condition->IsConditionMet(this))
+			{
+				Buff->bIsActive = false;
+				break;
+			}
+		}
+
+		if (!Buff->bIsActive)
+			continue;
+
+		AccumulatedBuffTags.AppendTags(BuffData->BuffTags);
+
+		for (FArcanaNeedState& NeedState : NeedStates)
+		{
+			if (float* ModifierValue = BuffData->NeedRateModifiers.Find(NeedState.Need))
+			{
+				NeedState.Rate += *ModifierValue;
+			}
+		}
+	}
+
+	return AccumulatedBuffTags;
+}
+
+TArray<UArcanaBuff*> AArcanaGameMode::GetActiveBuffs(FArcanaNeed AffectedNeed) const
+{
+	TArray<UArcanaBuff*> ActiveBuffs;
+
+	for (UArcanaBuff* Buff : Buffs)
+	{
+		if (!Buff->bIsActive || !Buff->BuffData)
+			continue;
+
+		if (Buff->BuffData->NeedRateModifiers.Contains(AffectedNeed))
+		{
+			ActiveBuffs.Add(Buff);
+		}
+	}
+
+	return ActiveBuffs;
 }

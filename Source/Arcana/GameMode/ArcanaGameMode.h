@@ -4,13 +4,17 @@
 
 #include "CoreMinimal.h"
 
-#include "Buffs/ArcanaBuffData.h"
+#include "Classes/GameplayTagContainer.h"
 #include "GameFramework/GameModeBase.h"
 #include "Needs/ArcanaNeed.h"
 
 #include "ArcanaGameMode.generated.h"
 
 class AArcanaPlayerCharacter;
+enum class EBuffUpdateTime : uint8;
+struct FGameplayTagContainer;
+class UArcanaBuff;
+class UArcanaBuffData;
 
 /**
  * 
@@ -25,6 +29,7 @@ public:
 
 	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
 	virtual void Tick(float DeltaSeconds);
+	virtual void BeginPlay();
 
 	AArcanaPlayerCharacter* GetPlayerCharacter() const { return PlayerCharacter; }
 
@@ -37,9 +42,13 @@ public:
 	TArray<FArcanaNeed> GetActiveNeeds() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
-	TArray<UArcanaBuffData*> GetActiveBuffs() const { return Buffs; }
+	TArray<UArcanaBuff*> GetActiveBuffs(FArcanaNeed AffectedNeed) const;
+
+	const FGameplayTagContainer& GetActiveBuffTags() const { return ActiveBuffTags; }
 
 protected:
+	FGameplayTagContainer UpdateBuffs(EBuffUpdateTime UpdateTime);
+
 	/** The default pawn class used by players. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Classes)
 	TSubclassOf<class ACharacter> PlayerCharacterClass;
@@ -54,5 +63,11 @@ protected:
 	int32 Currency = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	TArray<UArcanaBuffData*> Buffs;
+	TArray<UArcanaBuffData*> StartingBuffs;
+
+	UPROPERTY()
+	TArray<UArcanaBuff*> Buffs;
+
+	UPROPERTY(VisibleInstanceOnly, Category = "Debug Display")
+	FGameplayTagContainer ActiveBuffTags;
 };

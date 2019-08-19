@@ -11,10 +11,17 @@
 
 #include "ArcanaBuffData.generated.h"
 
+UENUM()
+enum class EBuffUpdateTime : uint8
+{
+	Default, // Update the buff straight away - tag conditions will be based on the tags at the start of the frame
+	LateUpdate // A later update - tag conditions will be based on active buffs with a Default buff update time
+};
+
 /**
  * 
  */
-UCLASS(BlueprintType)
+UCLASS(BlueprintType, AutoExpandCategories = ("Conditions"))
 class ARCANA_API UArcanaBuffData : public UDataAsset
 {
 	GENERATED_BODY()
@@ -28,6 +35,10 @@ public:
 	UPROPERTY(EditAnywhere, Instanced, Category = "Conditions")
 	TArray<UArcanaCondition*> OngoingConditions;
 
+	/** When to update this buff compared to other buffs */
+	UPROPERTY(EditAnywhere, Category = "Update")
+	EBuffUpdateTime UpdateTime = EBuffUpdateTime::Default;
+
 	UPROPERTY(EditAnywhere, Category = "Tags")
 	FGameplayTagContainer BuffTags;
 
@@ -36,6 +47,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	UDataAsset* UIData = nullptr;
-
-
 };
