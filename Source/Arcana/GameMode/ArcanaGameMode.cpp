@@ -17,6 +17,8 @@ AArcanaGameMode::AArcanaGameMode()
 
 void AArcanaGameMode::BeginPlay()
 {
+	Super::BeginPlay();
+
 	// Add starting buffs
 	for (UArcanaBuffData* BuffData : StartingBuffs)
 	{
