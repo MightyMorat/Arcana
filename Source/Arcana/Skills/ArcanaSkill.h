@@ -3,9 +3,47 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
+#include "Engine/DataTable.h"
 
 #include "ArcanaSkill.generated.h"
+
+class UTexture2D;
+
+USTRUCT(BlueprintType)
+struct ARCANA_API FArcanaSkill
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	FName SkillId;
+
+	FORCEINLINE bool operator==(const FArcanaSkill& OtherSkill) const { return SkillId == OtherSkill.SkillId; }
+};
+
+FORCEINLINE uint32 GetTypeHash(const FArcanaSkill& Skill)
+{
+	return GetTypeHash(Skill.SkillId);
+}
+
+USTRUCT(BlueprintType)
+struct ARCANA_API FArcanaSkillDefinition : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
+	int32 MaxLevel = 5;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	FText Name;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	FText Description;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	UTexture2D* IconTexture;
+};
 
 USTRUCT(BlueprintType)
 struct FArcanaSkillState
@@ -13,6 +51,9 @@ struct FArcanaSkillState
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FArcanaSkill Skill;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	int32 CurrentLevel;
 
@@ -21,23 +62,4 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float ProgressRate = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	UArcanaSkillDefinition* SkillDefinition = nullptr;
-};
-
-/**
- * 
- */
-UCLASS(BlueprintType)
-class ARCANA_API UArcanaSkillDefinition : public UDataAsset
-{
-	GENERATED_BODY()
-	
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gameplay")
-	int32 MaxLevel = 5;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-	UDataAsset* UIData = nullptr;
 };

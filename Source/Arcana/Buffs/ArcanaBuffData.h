@@ -11,6 +11,8 @@
 
 #include "ArcanaBuffData.generated.h"
 
+class UTexture2D;
+
 UENUM()
 enum class EBuffUpdateTime : uint8
 {
@@ -52,6 +54,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NeedModifiers")
 	TMap<FArcanaNeed, float> NeedRateModifiers;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-	UDataAsset* UIData = nullptr;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	FText Name;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	FText Description;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	UTexture2D* IconTexture;
 };

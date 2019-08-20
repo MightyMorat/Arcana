@@ -7,6 +7,8 @@
 
 #include "ArcanaNeed.generated.h"
 
+class UTexture2D;
+
 UENUM(BlueprintType)
 enum class ENeedSatisfaction : uint8
 {
@@ -38,8 +40,20 @@ struct ARCANA_API FArcanaNeedDefinition : public FTableRowBase
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	UDataAsset* UIData = nullptr;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	FText Name;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	FText LowSatisfactionDescription;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	FText MediumSatisfactionDescription;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	FText HighSatisfactionDescription;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	UTexture2D* IconTexture;
 };
 
 USTRUCT(BlueprintType)
