@@ -4,16 +4,16 @@
 
 #include "ArcanaTableRowPin.h"
 
-class SArcanaNeedPin : public SArcanaTableRowPin
+class SArcanaSkillPin : public SArcanaTableRowPin
 {
 public:
-	SLATE_BEGIN_ARGS(SArcanaNeedPin) {}
+	SLATE_BEGIN_ARGS(SArcanaSkillPin) {}
 	SLATE_END_ARGS()
 
 public:
 	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
-	virtual FString GetPropertyName() const override { return TEXT("NeedId"); }
+	virtual FString GetPropertyName() const override { return TEXT("SkillId"); }
 	virtual UDataTable* GetDataTable() const override;
 };

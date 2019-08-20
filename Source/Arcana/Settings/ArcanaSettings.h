@@ -28,4 +28,7 @@ public:
 	/** The minimum need value for 'Medium' satisfaction */
 	UPROPERTY(EditAnywhere, config, Category = "Needs")
 	float MediumNeedThreshold = 0.3f;
+
+	UPROPERTY(EditAnywhere, config, Category = "Skills")
+	TAssetPtr<UDataTable> SkillsDataTable;
 };

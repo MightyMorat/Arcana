@@ -5,11 +5,13 @@
 #include "CoreMinimal.h"
 
 #include "ArcanaNeedPin.h"
+#include "ArcanaSkillPin.h"
 #include "EdGraph/EdGraphPin.h"
 #include "EdGraph/EdGraphSchema.h"
 #include "EdGraphSchema_K2.h"
 #include "EdGraphUtilities.h"
 #include "Needs/ArcanaNeed.h"
+#include "Skills/ArcanaSkill.h"
 #include "SlateBasics.h"
 
 class FArcanaGraphPinFactory : public FGraphPanelPinFactory
@@ -22,6 +24,11 @@ class FArcanaGraphPinFactory : public FGraphPanelPinFactory
 			&& InPin->PinType.PinSubCategoryObject == FArcanaNeed::StaticStruct())
 		{
 			return SNew(SArcanaNeedPin, InPin); // Return our customized pin widget
+		}
+		else if (InPin->PinType.PinCategory == K2Schema->PC_Struct
+			&& InPin->PinType.PinSubCategoryObject == FArcanaSkill::StaticStruct())
+		{
+			return SNew(SArcanaSkillPin, InPin); // Return our customized pin widget
 		}
 		return nullptr;
 	}

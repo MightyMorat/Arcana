@@ -4,12 +4,12 @@
 
 #include "ArcanaTableRowCustomization.h"
 
-class FArcanaNeedCustomization : public FArcanaTableRowCustomization
+class FArcanaSkillCustomization : public FArcanaTableRowCustomization
 {
 public:
 	static TSharedRef<IPropertyTypeCustomization> MakeInstance();
 
 protected:
-	virtual FString GetPropertyName() const override { return TEXT("NeedId"); }
+	virtual FString GetPropertyName() const override { return TEXT("SkillId"); }
 	virtual UDataTable* GetDataTable() const override;
 };

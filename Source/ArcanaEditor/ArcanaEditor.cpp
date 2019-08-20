@@ -5,6 +5,7 @@
 #include "GraphPins/ArcanaGraphPinFactory.h"
 #include "Modules/ModuleManager.h"
 #include "DetailCustomization/ArcanaNeedCustomization.h"
+#include "DetailCustomization/ArcanaSkillCustomization.h"
 #include "PropertyEditorModule.h"
 
 IMPLEMENT_GAME_MODULE(FArcanaEditorModule, ArcanaEditor);
@@ -20,6 +21,7 @@ void FArcanaEditorModule::StartupModule()
 	// Custom properties
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	PropertyModule.RegisterCustomPropertyTypeLayout("ArcanaNeed", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FArcanaNeedCustomization::MakeInstance));
+	PropertyModule.RegisterCustomPropertyTypeLayout("ArcanaSkill", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FArcanaSkillCustomization::MakeInstance));
 
 	// Custom pins
 	TSharedPtr<FArcanaGraphPinFactory> ArcanaGraphPinFactory = MakeShareable(new FArcanaGraphPinFactory());
