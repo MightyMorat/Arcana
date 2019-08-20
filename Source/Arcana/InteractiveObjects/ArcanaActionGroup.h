@@ -6,6 +6,40 @@
 #include "Engine/DataAsset.h"
 #include "ArcanaActionGroup.generated.h"
 
+class UArcanaCondition;
+
+USTRUCT(BlueprintType)
+struct FArcanaActionCondition
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UArcanaCondition* Condition;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bHideOnFailure = true;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (EditCondition = "!bHideOnFailure"))
+	FText FailureNameOverride;
+};
+
+USTRUCT(BlueprintType)
+struct FArcanaAction
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FText ActionName;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bIsEnabled = true;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TArray<FArcanaActionCondition> Conditions;
+};
+
 /**
  * 
  */
@@ -16,5 +50,5 @@ class ARCANA_API UArcanaActionGroup : public UDataAsset
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TArray<FName> Actions;
+	TArray<FArcanaAction> Actions;
 };

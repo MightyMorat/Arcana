@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "ArcanaActionGroup.h"
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "InteractiveObjectComponent.generated.h"
@@ -20,6 +21,9 @@ public:
 	void OnUnhovered();
 	void OnSelected();
 	void OnDeselected();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure = false)
+	TArray<FArcanaAction> GetAvailableActions() const;
 
 protected:
 	void SetActorOutlineEnabled(bool bEnable);

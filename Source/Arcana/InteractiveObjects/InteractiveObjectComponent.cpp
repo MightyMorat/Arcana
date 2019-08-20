@@ -4,6 +4,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
+#include "Conditions/ArcanaCondition.h"
 #include "Engine.h"
 #include "GameFramework/Actor.h"
 
@@ -79,3 +80,39 @@ void UInteractiveObjectComponent::SetActorOutlineEnabled(bool bEnable)
 	}
 }
 
+TArray<FArcanaAction> UInteractiveObjectComponent::GetAvailableActions() const
+{
+	TArray<FArcanaAction> AvailableActions;
+	if (!ActionGroup)
+		return AvailableActions;
+
+	for (const FArcanaAction& Action : ActionGroup->Actions)
+	{
+		bool bConditionSuccess = true;
+		for (const FArcanaActionCondition& ActionCondition : Action.Conditions)
+		{
+			if (ActionCondition.Condition && !ActionCondition.Condition->IsConditionMet(this))
+			{
+				bConditionSuccess = false;
+				if (!ActionCondition.bHideOnFailure)
+				{
+					FArcanaAction& AddedAction = AvailableActions.Add_GetRef(Action);
+					AddedAction.bIsEnabled = false;
+					if (!ActionCondition.FailureNameOverride.IsEmpty())
+					{
+						AddedAction.ActionName = ActionCondition.FailureNameOverride;
+					}
+				}
+				break;
+			}
+		}
+
+		if (bConditionSuccess)
+		{
+			FArcanaAction& AddedAction = AvailableActions.Add_GetRef(Action);
+			AddedAction.bIsEnabled = true;
+		}
+	}
+
+	return AvailableActions;
+}
