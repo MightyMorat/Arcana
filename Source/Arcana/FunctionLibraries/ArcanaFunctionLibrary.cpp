@@ -21,3 +21,20 @@ void UArcanaFunctionLibrary::GetNeedDefinition(FArcanaNeed Need, bool& bFound, F
 		}
 	}
 }
+
+void UArcanaFunctionLibrary::GetSkillDefinition(FArcanaSkill Skill, bool& bFound, FArcanaSkillDefinition& SkillDefinition)
+{
+	bFound = false;
+	SkillDefinition = FArcanaSkillDefinition();
+
+	UDataTable* SkillsDataTable = UArcanaSettings::Get()->SkillsDataTable.LoadSynchronous();
+	if (SkillsDataTable)
+	{
+		FArcanaSkillDefinition* Definition = SkillsDataTable->FindRow<FArcanaSkillDefinition>(Skill.SkillId, FString(""), false);
+		if (Definition)
+		{
+			bFound = true;
+			SkillDefinition = *Definition;
+		}
+	}
+}
