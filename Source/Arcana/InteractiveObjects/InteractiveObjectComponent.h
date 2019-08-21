@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "ArcanaActionGroup.h"
+#include "ArcanaAction.h"
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "InteractiveObjectComponent.generated.h"

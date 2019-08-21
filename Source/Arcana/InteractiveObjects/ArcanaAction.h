@@ -4,9 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "ArcanaActionGroup.generated.h"
+#include "ArcanaAction.generated.h"
 
+class UArcanaBuffData;
 class UArcanaCondition;
+
+UCLASS(BlueprintType)
+class ARCANA_API UArcanaActionData : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float Duration = 10.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TArray<UArcanaBuffData*> OngoingBuffs;
+};
+
 
 USTRUCT(BlueprintType)
 struct FArcanaActionCondition
@@ -30,6 +45,9 @@ struct FArcanaAction
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UArcanaActionData* ActionData = nullptr;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FText ActionName;
 
