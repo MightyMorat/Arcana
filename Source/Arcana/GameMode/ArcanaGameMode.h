@@ -7,6 +7,7 @@
 #include "Classes/GameplayTagContainer.h"
 #include "GameFramework/GameModeBase.h"
 #include "Needs/ArcanaNeed.h"
+#include "Skills/ArcanaSkill.h"
 
 #include "ArcanaGameMode.generated.h"
 
@@ -42,6 +43,12 @@ public:
 	TArray<FArcanaNeed> GetActiveNeeds() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	void GetSkillState(FArcanaSkill Skill, bool& bFound, FArcanaSkillState& SkillState) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	TArray<FArcanaSkill> GetActiveSkills() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
 	TArray<UArcanaBuff*> GetActiveBuffs(FArcanaNeed AffectedNeed) const;
 
 	const FGameplayTagContainer& GetActiveBuffTags() const { return ActiveBuffTags; }
@@ -58,6 +65,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	TArray<FArcanaNeedState> NeedStates;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Gameplay")
+	TArray<FArcanaSkillState> SkillStates;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
 	int32 Currency = 0;

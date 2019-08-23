@@ -8,6 +8,7 @@
 #include "Classes/GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
 #include "Needs/ArcanaNeed.h"
+#include "Skills/ArcanaSkill.h"
 
 #include "ArcanaBuffData.generated.h"
 
@@ -53,6 +54,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NeedModifiers")
 	TMap<FArcanaNeed, float> NeedRateModifiers;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SkillModifiers")
+	TMap<FArcanaSkill, float> SkillRateModifiers;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
 	FText Name;

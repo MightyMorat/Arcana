@@ -8,6 +8,7 @@
 #include "Characters/ArcanaPlayerCharacter.h"
 #include "Conditions//ArcanaCondition.h"
 #include "Engine/World.h"
+#include "FunctionLibraries/ArcanaFunctionLibrary.h"
 #include "Settings/ArcanaSettings.h"
 
 AArcanaGameMode::AArcanaGameMode()
@@ -25,6 +26,19 @@ void AArcanaGameMode::BeginPlay()
 		UArcanaBuff* Buff = NewObject<UArcanaBuff>();
 		Buff->BuffData = BuffData;
 		Buffs.Add(Buff);
+	}
+
+	// Populate skill states
+	SkillStates.Empty();
+	UDataTable* SkillsDataTable = UArcanaSettings::Get()->SkillsDataTable.LoadSynchronous();
+	if (SkillsDataTable)
+	{
+		const TArray<FName> SkillNames = SkillsDataTable->GetRowNames();
+		for (const FName& SkillName : SkillNames)
+		{
+			FArcanaSkillState& SkillState = SkillStates.AddDefaulted_GetRef();
+			SkillState.Skill.SkillId = SkillName;
+		}
 	}
 }
 
@@ -69,6 +83,33 @@ TArray<FArcanaNeed> AArcanaGameMode::GetActiveNeeds() const
 	return ActiveNeeds;
 }
 
+void AArcanaGameMode::GetSkillState(FArcanaSkill Skill, bool& bFound, FArcanaSkillState& OutSkillState) const
+{
+	bFound = false;
+	OutSkillState = FArcanaSkillState();
+
+	for (const FArcanaSkillState& SkillState : SkillStates)
+	{
+		if (SkillState.Skill == Skill)
+		{
+			bFound = true;
+			OutSkillState = SkillState;
+			return;
+		}
+	}
+}
+
+TArray<FArcanaSkill> AArcanaGameMode::GetActiveSkills() const
+{
+	TArray<FArcanaSkill> ActiveSkills;
+	for (const FArcanaSkillState& SkillState : SkillStates)
+	{
+		ActiveSkills.Add(SkillState.Skill);
+	}
+
+	return ActiveSkills;
+}
+
 void AArcanaGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -80,11 +121,16 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 	{
 		NeedState.Rate = 0.0f;
 	}
+	for (FArcanaSkillState& SkillState : SkillStates)
+	{
+		SkillState.ProgressRate = 0.0f;
+	}
 
 	// Update buffs, accumulating tags and effects
 	ActiveBuffTags = UpdateBuffs(EBuffUpdateTime::Default);
 	ActiveBuffTags.AppendTags(UpdateBuffs(EBuffUpdateTime::LateUpdate));
 
+	// Update needs
 	for (FArcanaNeedState& NeedState : NeedStates)
 	{
 		// Update value based on current rate
@@ -103,6 +149,38 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 		else
 		{
 			NeedState.NeedSatisfaction = ENeedSatisfaction::Low;
+		}
+	}
+
+	// Update skills
+	for (FArcanaSkillState& SkillState : SkillStates)
+	{
+		FArcanaSkillDefinition SkillDefinition;
+		bool bFound = false;
+		UArcanaFunctionLibrary::GetSkillDefinition(SkillState.Skill, bFound, SkillDefinition);
+
+		if (!bFound)
+			continue;
+
+		if (SkillState.CurrentLevel == SkillDefinition.MaxLevel)
+		{
+			SkillState.ProgressRate = 0.0f;
+			continue;
+		}
+
+		// Update value based on current rate
+		SkillState.ProgressToNextLevel += DeltaSeconds * SkillState.ProgressRate;
+		while (SkillState.ProgressToNextLevel >= 1.0f)
+		{
+			++SkillState.CurrentLevel;
+
+			if (SkillState.CurrentLevel == SkillDefinition.MaxLevel)
+			{
+				SkillState.ProgressToNextLevel = 0.0f;
+				break;
+			}
+
+			SkillState.ProgressToNextLevel -= 1.0f;
 		}
 	}
 }
@@ -142,6 +220,14 @@ FGameplayTagContainer AArcanaGameMode::UpdateBuffs(EBuffUpdateTime UpdateTime)
 			if (float* ModifierValue = BuffData->NeedRateModifiers.Find(NeedState.Need))
 			{
 				NeedState.Rate += *ModifierValue;
+			}
+		}
+
+		for (FArcanaSkillState& SkillState : SkillStates)
+		{
+			if (float* ModifierValue = BuffData->SkillRateModifiers.Find(SkillState.Skill))
+			{
+				SkillState.ProgressRate += *ModifierValue;
 			}
 		}
 	}

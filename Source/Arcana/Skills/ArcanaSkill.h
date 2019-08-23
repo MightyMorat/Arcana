@@ -16,7 +16,7 @@ struct ARCANA_API FArcanaSkill
 
 public:
 	UPROPERTY(EditAnywhere)
-	FName SkillId;
+	FName SkillId = NAME_None;
 
 	FORCEINLINE bool operator==(const FArcanaSkill& OtherSkill) const { return SkillId == OtherSkill.SkillId; }
 };
@@ -55,7 +55,7 @@ public:
 	FArcanaSkill Skill;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	int32 CurrentLevel;
+	int32 CurrentLevel = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float ProgressToNextLevel = 0.0f;
