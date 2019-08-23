@@ -176,7 +176,7 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 
 			if (SkillState.CurrentLevel == SkillDefinition.MaxLevel)
 			{
-				SkillState.ProgressToNextLevel = 0.0f;
+				SkillState.ProgressToNextLevel = 1.0f;
 				break;
 			}
 
@@ -192,13 +192,17 @@ FGameplayTagContainer AArcanaGameMode::UpdateBuffs(EBuffUpdateTime UpdateTime)
 	// Accumulate need rates from buffs
 	for (UArcanaBuff* Buff : Buffs)
 	{
-		Buff->bIsActive = true;
 		UArcanaBuffData* BuffData = Buff->BuffData;
 		if (!BuffData)
 		{
 			Buff->bIsActive = false;
 			continue;
 		}
+
+		if (BuffData->UpdateTime != UpdateTime)
+			continue;
+
+		Buff->bIsActive = true;
 
 		for (UArcanaCondition* Condition : BuffData->OngoingConditions)
 		{
