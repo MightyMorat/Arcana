@@ -3,7 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Engine/DataAsset.h"
+#include "Skills/ArcanaSkill.h"
+
 #include "ArcanaAction.generated.h"
 
 class UArcanaBuffData;
@@ -15,11 +18,21 @@ class ARCANA_API UArcanaActionData : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+#if WITH_EDITOR
+	virtual bool CanEditChange(const UProperty* InProperty) const override;
+#endif
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0.0f))
 	float Duration = 10.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<UArcanaBuffData*> OngoingBuffs;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FArcanaSkill AffectedSkill;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0.0f))
+	float SkillGainRate = 0.02f;
 };
 
 

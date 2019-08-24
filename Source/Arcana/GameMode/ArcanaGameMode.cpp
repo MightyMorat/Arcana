@@ -226,14 +226,6 @@ FGameplayTagContainer AArcanaGameMode::UpdateBuffs(EBuffUpdateTime UpdateTime)
 				NeedState.Rate += *ModifierValue;
 			}
 		}
-
-		for (FArcanaSkillState& SkillState : SkillStates)
-		{
-			if (float* ModifierValue = BuffData->SkillRateModifiers.Find(SkillState.Skill))
-			{
-				SkillState.ProgressRate += *ModifierValue;
-			}
-		}
 	}
 
 	return AccumulatedBuffTags;

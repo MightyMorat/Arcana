@@ -55,9 +55,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NeedModifiers")
 	TMap<FArcanaNeed, float> NeedRateModifiers;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SkillModifiers")
-	TMap<FArcanaSkill, float> SkillRateModifiers;
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
 	FText Name;
 
