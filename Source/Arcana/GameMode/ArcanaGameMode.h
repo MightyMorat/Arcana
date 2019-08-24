@@ -32,6 +32,7 @@ public:
 	virtual void Tick(float DeltaSeconds);
 	virtual void BeginPlay();
 
+	UFUNCTION(BlueprintCallable)
 	AArcanaPlayerCharacter* GetPlayerCharacter() const { return PlayerCharacter; }
 
 	int32 GetCurrency() const { return Currency; }
@@ -50,6 +51,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
 	TArray<UArcanaBuff*> GetActiveBuffs(FArcanaNeed AffectedNeed) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UArcanaBuff* ApplyBuff(const UArcanaBuffData* BuffData, UObject* ContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void RemoveBuff(UArcanaBuff* Buff) { Buffs.Remove(Buff); }
 
 	const FGameplayTagContainer& GetActiveBuffTags() const { return ActiveBuffTags; }
 
@@ -73,7 +80,7 @@ protected:
 	int32 Currency = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	TArray<UArcanaBuffData*> StartingBuffs;
+	TArray<const UArcanaBuffData*> StartingBuffs;
 
 	UPROPERTY()
 	TArray<UArcanaBuff*> Buffs;

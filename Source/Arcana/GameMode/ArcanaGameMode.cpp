@@ -9,6 +9,7 @@
 #include "Conditions//ArcanaCondition.h"
 #include "Engine/World.h"
 #include "FunctionLibraries/ArcanaFunctionLibrary.h"
+#include "InteractiveObjects/ArcanaAction.h"
 #include "Settings/ArcanaSettings.h"
 
 AArcanaGameMode::AArcanaGameMode()
@@ -20,11 +21,12 @@ void AArcanaGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Add starting buffs
-	for (UArcanaBuffData* BuffData : StartingBuffs)
+	// Add starting buffs (do this directly because we don't want to check application conditions on these)
+	for (const UArcanaBuffData* BuffData : StartingBuffs)
 	{
 		UArcanaBuff* Buff = NewObject<UArcanaBuff>();
 		Buff->BuffData = BuffData;
+		Buff->ContextObject = this;
 		Buffs.Add(Buff);
 	}
 
@@ -116,14 +118,24 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 
 	const UArcanaSettings* ArcanaSettings = UArcanaSettings::Get();
 
+	// Get skill rate from current action
+	const UArcanaActionData* CurrentActionData = PlayerCharacter ? PlayerCharacter->GetCurrentActionData() : nullptr;
+	for (FArcanaSkillState& SkillState : SkillStates)
+	{
+		if (CurrentActionData && CurrentActionData->AffectedSkill == SkillState.Skill)
+		{
+			SkillState.ProgressRate = CurrentActionData->SkillGainRate;
+		}
+		else
+		{
+			SkillState.ProgressRate = 0.0f;
+		}
+	}
+
 	// Clear last frame's rate data
 	for (FArcanaNeedState& NeedState : NeedStates)
 	{
 		NeedState.Rate = 0.0f;
-	}
-	for (FArcanaSkillState& SkillState : SkillStates)
-	{
-		SkillState.ProgressRate = 0.0f;
 	}
 
 	// Update buffs, accumulating tags and effects
@@ -192,7 +204,7 @@ FGameplayTagContainer AArcanaGameMode::UpdateBuffs(EBuffUpdateTime UpdateTime)
 	// Accumulate need rates from buffs
 	for (UArcanaBuff* Buff : Buffs)
 	{
-		UArcanaBuffData* BuffData = Buff->BuffData;
+		const UArcanaBuffData* BuffData = Buff->BuffData;
 		if (!BuffData)
 		{
 			Buff->bIsActive = false;
@@ -204,9 +216,9 @@ FGameplayTagContainer AArcanaGameMode::UpdateBuffs(EBuffUpdateTime UpdateTime)
 
 		Buff->bIsActive = true;
 
-		for (UArcanaCondition* Condition : BuffData->OngoingConditions)
+		for (const UArcanaCondition* Condition : BuffData->OngoingConditions)
 		{
-			if (Condition && !Condition->IsConditionMet(this))
+			if (Condition && !Condition->IsConditionMet(Buff->ContextObject))
 			{
 				Buff->bIsActive = false;
 				break;
@@ -221,7 +233,7 @@ FGameplayTagContainer AArcanaGameMode::UpdateBuffs(EBuffUpdateTime UpdateTime)
 
 		for (FArcanaNeedState& NeedState : NeedStates)
 		{
-			if (float* ModifierValue = BuffData->NeedRateModifiers.Find(NeedState.Need))
+			if (const float* ModifierValue = BuffData->NeedRateModifiers.Find(NeedState.Need))
 			{
 				NeedState.Rate += *ModifierValue;
 			}
@@ -247,4 +259,22 @@ TArray<UArcanaBuff*> AArcanaGameMode::GetActiveBuffs(FArcanaNeed AffectedNeed) c
 	}
 
 	return ActiveBuffs;
+}
+
+UArcanaBuff* AArcanaGameMode::ApplyBuff(const UArcanaBuffData* BuffData, UObject* ContextObject)
+{
+	for (const UArcanaCondition* Condition : BuffData->ApplicationConditions)
+	{
+		if (Condition && !Condition->IsConditionMet(ContextObject))
+		{
+			return nullptr;
+		}
+	}
+
+	UArcanaBuff* Buff = NewObject<UArcanaBuff>();
+	Buff->BuffData = BuffData;
+	Buff->ContextObject = ContextObject;
+	Buffs.Add(Buff);
+
+	return Buff;
 }

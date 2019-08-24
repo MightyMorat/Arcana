@@ -20,5 +20,8 @@ public:
 	bool bIsActive = false;
 
 	UPROPERTY(BlueprintReadOnly)
-	UArcanaBuffData* BuffData = nullptr;
+	UObject* ContextObject = nullptr;
+
+	UPROPERTY(BlueprintReadOnly)
+	const UArcanaBuffData* BuffData = nullptr;
 };
