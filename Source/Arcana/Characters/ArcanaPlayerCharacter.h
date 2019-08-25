@@ -91,6 +91,8 @@ protected:
 	UFUNCTION()
 	void OnMoveCompleted(struct FAIRequestID RequestID, EPathFollowingResult::Type MovementResult);
 
+	void BeginInteraction(UQueuedAction* CurrentQueuedAction);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Actions")
 	int32 MaxQueueSize = 2;
 

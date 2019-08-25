@@ -21,7 +21,10 @@ void UQueuedAction::InitInteractionAction(const UArcanaActionData* InActionData,
 	ActionData = InActionData;
 	TargetInteractiveObjectComponent = InTargetInteractiveObjectComponent;
 
-	// todo[hale] - calculate target location
+	if (TargetInteractiveObjectComponent)
+	{
+		TargetLocation = TargetInteractiveObjectComponent->GetComponentLocation();
+	}
 }
 
 void UQueuedAction::GetActionProgress(bool& bHasEndTime, float& ActionProgress) const
@@ -128,59 +131,28 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 		{
 			case EQueuedActionState::NotStarted:
 			{
-				// todo[hale] - move for interactions too
-				if (CurrentQueuedAction->Type == EQueuedActionType::MoveTo)
+				AAIController* AIController = Cast<AAIController>(GetController());
+				if (AIController)
 				{
-					AAIController* AIController = Cast<AAIController>(GetController());
-					if (AIController)
+					switch (AIController->MoveToLocation(CurrentQueuedAction->TargetLocation))
 					{
-						switch (AIController->MoveToLocation(CurrentQueuedAction->TargetLocation))
+						case EPathFollowingRequestResult::Type::RequestSuccessful:
 						{
-							case EPathFollowingRequestResult::Type::RequestSuccessful:
-							{
-								AIController->ReceiveMoveCompleted.AddDynamic(this, &AArcanaPlayerCharacter::OnMoveCompleted);
-								CurrentQueuedAction->ActionState = EQueuedActionState::MovingTo;
-								break;
-							}
-							case EPathFollowingRequestResult::Type::AlreadyAtGoal:
-							{
-								CurrentQueuedAction->ActionState = EQueuedActionState::MovingTo;
-								break;
-							}
-							case EPathFollowingRequestResult::Type::Failed:
-							{
-								CancelQueuedAction(CurrentQueuedAction);
-								break;
-							}
+							AIController->ReceiveMoveCompleted.AddDynamic(this, &AArcanaPlayerCharacter::OnMoveCompleted);
+							CurrentQueuedAction->ActionState = EQueuedActionState::MovingTo;
+							break;
+						}
+						case EPathFollowingRequestResult::Type::AlreadyAtGoal:
+						{
+							CurrentQueuedAction->ActionState = EQueuedActionState::MovingTo;
+							break;
+						}
+						case EPathFollowingRequestResult::Type::Failed:
+						{
+							CancelQueuedAction(CurrentQueuedAction);
+							break;
 						}
 					}
-				}
-				else
-				{
-					AArcanaGameMode* GameMode = Cast<AArcanaGameMode>(GetWorld()->GetAuthGameMode());
-					if (!GameMode)
-						return;
-
-					if (const UArcanaActionData* ActionData = CurrentQueuedAction->ActionData)
-					{
-						// Apply action buffs
-						for (const UArcanaBuffData* BuffData : ActionData->OngoingBuffs)
-						{
-							UArcanaBuff* AppliedBuff = GameMode->ApplyBuff(BuffData, CurrentQueuedAction->TargetInteractiveObjectComponent);
-							if (AppliedBuff)
-							{
-								CurrentQueuedAction->AppliedActionBuffs.Add(AppliedBuff);
-							}
-						}
-
-						// Calculate end time
-						if (ActionData->bHasMaxDuration)
-						{
-							CurrentQueuedAction->ActionEndTime = GetWorld()->GetTimeSeconds() + ActionData->MaxDuration;
-						}
-					}
-
-					CurrentQueuedAction->ActionState = EQueuedActionState::InProgress;
 				}
 
 				break;
@@ -242,9 +214,40 @@ void AArcanaPlayerCharacter::OnMoveCompleted(FAIRequestID RequestID, EPathFollow
 			}
 			case EQueuedActionType::ObjectInteraction:
 			{
-				CurrentQueuedAction->ActionState = EQueuedActionState::InProgress;
+				BeginInteraction(CurrentQueuedAction);
 				break;
 			}
 		}
 	}
+}
+
+void AArcanaPlayerCharacter::BeginInteraction(UQueuedAction* CurrentQueuedAction)
+{
+	if (!CurrentQueuedAction)
+		return;
+
+	if (const UArcanaActionData * ActionData = CurrentQueuedAction->ActionData)
+	{
+		AArcanaGameMode* GameMode = Cast<AArcanaGameMode>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			// Apply action buffs
+			for (const UArcanaBuffData* BuffData : ActionData->OngoingBuffs)
+			{
+				UArcanaBuff* AppliedBuff = GameMode->ApplyBuff(BuffData, CurrentQueuedAction->TargetInteractiveObjectComponent);
+				if (AppliedBuff)
+				{
+					CurrentQueuedAction->AppliedActionBuffs.Add(AppliedBuff);
+				}
+			}
+		}
+
+		// Calculate end time
+		if (ActionData->bHasMaxDuration)
+		{
+			CurrentQueuedAction->ActionEndTime = GetWorld()->GetTimeSeconds() + ActionData->MaxDuration;
+		}
+	}
+
+	CurrentQueuedAction->ActionState = EQueuedActionState::InProgress;
 }
