@@ -145,6 +145,16 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 	// Update needs
 	for (FArcanaNeedState& NeedState : NeedStates)
 	{
+		// Clamp rate at the boundaries
+		if (NeedState.Value == 0.0f)
+		{
+			NeedState.Rate = FMath::Max(0.0f, NeedState.Rate);
+		}
+		else if (NeedState.Value == 1.0f)
+		{
+			NeedState.Rate = FMath::Min(0.0f, NeedState.Rate);
+		}
+
 		// Update value based on current rate
 		NeedState.Value += DeltaSeconds*NeedState.Rate;
 		NeedState.Value = FMath::Clamp(NeedState.Value, 0.0f, 1.0f);

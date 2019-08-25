@@ -121,14 +121,6 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	/*if (CurrentActionData)
-	{
-		if (CurrentActionEndTime <= GetWorld()->GetTimeSeconds())
-		{
-			EndCurrentAction();
-		}
-	}*/
-
 	UQueuedAction* CurrentQueuedAction = ActionQueue.Num() > 0 ? ActionQueue[0] : nullptr;
 	if (CurrentQueuedAction)
 	{
@@ -168,8 +160,6 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 					AArcanaGameMode* GameMode = Cast<AArcanaGameMode>(GetWorld()->GetAuthGameMode());
 					if (!GameMode)
 						return;
-
-					//CurrentActionEndTime = GetWorld()->GetTimeSeconds() + ActionData->Duration;
 
 					if (const UArcanaActionData* ActionData = CurrentQueuedAction->ActionData)
 					{
