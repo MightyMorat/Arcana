@@ -44,7 +44,7 @@ protected:
 	const UArcanaActionData* ActionData = nullptr;
 
 	UPROPERTY(BlueprintReadOnly)
-	const UInteractiveObjectComponent* TargetInteractiveObjectComponent = nullptr;
+	UInteractiveObjectComponent* TargetInteractiveObjectComponent = nullptr;
 
 	UPROPERTY(BlueprintReadOnly)
 	EQueuedActionState ActionState = EQueuedActionState::NotStarted;

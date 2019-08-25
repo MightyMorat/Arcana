@@ -37,7 +37,8 @@ void AArcanaPlayerCharacter::CancelQueuedAction(UQueuedAction* QueuedAction)
 	if (!QueuedAction)
 		return;
 
-	if (ActionQueue.Num() > 0 && ActionQueue[0] == QueuedAction)
+	// Clear any movement related to this action
+	if (QueuedAction->ActionState == EQueuedActionState::MovingTo)
 	{
 		AAIController* AIController = Cast<AAIController>(GetController());
 		if (AIController)
@@ -47,49 +48,20 @@ void AArcanaPlayerCharacter::CancelQueuedAction(UQueuedAction* QueuedAction)
 		}
 	}
 
+	// Clear buffs
+	AArcanaGameMode* GameMode = Cast<AArcanaGameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		for (UArcanaBuff* Buff : QueuedAction->AppliedActionBuffs)
+		{
+			GameMode->RemoveBuff(Buff);
+		}
+	}
+	QueuedAction->AppliedActionBuffs.Empty();
+
 	ActionQueue.Remove(QueuedAction);
 	QueuedAction->ActionState = EQueuedActionState::Ending;
 }
-
-//void AArcanaPlayerCharacter::EndCurrentAction()
-//{
-//	CurrentActionData = nullptr;
-//
-//	AArcanaGameMode* GameMode = Cast<AArcanaGameMode>(GetWorld()->GetAuthGameMode());
-//	if (GameMode)
-//	{
-//		for (UArcanaBuff* Buff : CurrentActionBuffs)
-//		{
-//			GameMode->RemoveBuff(Buff);
-//		}
-//	}
-//
-//	CurrentActionBuffs.Empty();
-//}
-//
-//void AArcanaPlayerCharacter::QueueAction(const UArcanaActionData* ActionData, UInteractiveObjectComponent* TargetInteractiveObjectComponent)
-//{
-//	if (!TargetInteractiveObjectComponent || !ActionData)
-//		return;
-//
-//	AArcanaGameMode* GameMode = Cast<AArcanaGameMode>(GetWorld()->GetAuthGameMode());
-//	if (!GameMode)
-//		return;
-//
-//	EndCurrentAction();
-//
-//	CurrentActionData = ActionData;
-//	CurrentActionEndTime = GetWorld()->GetTimeSeconds() + ActionData->Duration;
-//
-//	for (const UArcanaBuffData* BuffData : ActionData->OngoingBuffs)
-//	{
-//		UArcanaBuff* AppliedBuff = GameMode->ApplyBuff(BuffData, TargetInteractiveObjectComponent);
-//		if (AppliedBuff)
-//		{
-//			CurrentActionBuffs.Add(AppliedBuff);
-//		}
-//	}
-//}
 
 void AArcanaPlayerCharacter::QueueInteractionAction(const UArcanaActionData* ActionData, UInteractiveObjectComponent* TargetInteractiveObjectComponent)
 {
@@ -181,6 +153,25 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 				}
 				else
 				{
+					AArcanaGameMode* GameMode = Cast<AArcanaGameMode>(GetWorld()->GetAuthGameMode());
+					if (!GameMode)
+						return;
+
+					//CurrentActionEndTime = GetWorld()->GetTimeSeconds() + ActionData->Duration;
+
+					// Apply action buffs
+					if (CurrentQueuedAction->ActionData)
+					{
+						for (const UArcanaBuffData* BuffData : CurrentQueuedAction->ActionData->OngoingBuffs)
+						{
+							UArcanaBuff* AppliedBuff = GameMode->ApplyBuff(BuffData, CurrentQueuedAction->TargetInteractiveObjectComponent);
+							if (AppliedBuff)
+							{
+								CurrentQueuedAction->AppliedActionBuffs.Add(AppliedBuff);
+							}
+						}
+					}
+
 					CurrentQueuedAction->ActionState = EQueuedActionState::InProgress;
 				}
 
