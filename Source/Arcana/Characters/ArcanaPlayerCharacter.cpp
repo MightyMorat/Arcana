@@ -134,7 +134,7 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 				AAIController* AIController = Cast<AAIController>(GetController());
 				if (AIController)
 				{
-					switch (AIController->MoveToLocation(CurrentQueuedAction->TargetLocation))
+					switch (AIController->MoveToLocation(CurrentQueuedAction->TargetLocation, -1, false))
 					{
 						case EPathFollowingRequestResult::Type::RequestSuccessful:
 						{
@@ -144,7 +144,19 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 						}
 						case EPathFollowingRequestResult::Type::AlreadyAtGoal:
 						{
-							CurrentQueuedAction->ActionState = EQueuedActionState::MovingTo;
+							switch (CurrentQueuedAction->Type)
+							{
+								case EQueuedActionType::MoveTo:
+								{
+									CancelQueuedAction(CurrentQueuedAction);
+									break;
+								}
+								case EQueuedActionType::ObjectInteraction:
+								{
+									BeginInteraction(CurrentQueuedAction);
+									break;
+								}
+							}
 							break;
 						}
 						case EPathFollowingRequestResult::Type::Failed:
