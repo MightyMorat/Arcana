@@ -94,7 +94,17 @@ void AArcanaPlayerCharacter::CancelQueuedAction(UQueuedAction* QueuedAction)
 void AArcanaPlayerCharacter::QueueInteractionAction(const UArcanaActionData* ActionData, UInteractiveObjectComponent* TargetInteractiveObjectComponent)
 {
 	if (ActionQueue.Num() >= MaxQueueSize)
-		return; // todo[hale] replace top of queue
+	{
+		if (MaxQueueSize > 1)
+		{
+			// Replace the top of the queue
+			CancelQueuedAction(ActionQueue.Last());
+		}
+		else
+		{
+			return;
+		}
+	}
 
 	UQueuedAction* QueuedAction = NewObject<UQueuedAction>();
 	QueuedAction->InitInteractionAction(ActionData, TargetInteractiveObjectComponent);
@@ -105,7 +115,17 @@ void AArcanaPlayerCharacter::QueueInteractionAction(const UArcanaActionData* Act
 void AArcanaPlayerCharacter::QueueMoveAction(const FVector& TargetLocation)
 {
 	if (ActionQueue.Num() >= MaxQueueSize)
-		return; // todo[hale] replace top of queue
+	{
+		if (MaxQueueSize > 1)
+		{
+			// Replace the top of the queue
+			CancelQueuedAction(ActionQueue.Last());
+		}
+		else
+		{
+			return;
+		}
+	}
 
 	UQueuedAction* QueuedAction = NewObject<UQueuedAction>();
 	QueuedAction->InitMoveAction(TargetLocation);
