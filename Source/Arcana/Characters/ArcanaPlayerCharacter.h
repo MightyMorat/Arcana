@@ -37,6 +37,9 @@ class UQueuedAction : public UObject
 	friend class AArcanaPlayerCharacter;
 
 protected:
+	UFUNCTION(BlueprintCallable, BlueprintPure = false)
+	void GetActionProgress(bool& bHasEndTime, float& ActionProgress) const;
+
 	UPROPERTY(BlueprintReadOnly)
 	EQueuedActionType Type = EQueuedActionType::MoveTo;
 
@@ -53,7 +56,7 @@ protected:
 	bool bIsInterruptible = true;
 
 	UPROPERTY(BlueprintReadOnly)
-	float ActionEndTime = 0.0f;
+	float ActionEndTime = -FLT_MAX;
 
 	UPROPERTY()
 	TArray<UArcanaBuff*> AppliedActionBuffs;

@@ -24,6 +24,18 @@ void UQueuedAction::InitInteractionAction(const UArcanaActionData* InActionData,
 	// todo[hale] - calculate target location
 }
 
+void UQueuedAction::GetActionProgress(bool& bHasEndTime, float& ActionProgress) const
+{
+	bHasEndTime = false;
+	ActionProgress = 0.0f;
+
+	if (ActionData && TargetInteractiveObjectComponent && ActionEndTime > -FLT_MAX)
+	{
+		bHasEndTime = true;
+		ActionProgress = FMath::Clamp(1.0f - (ActionEndTime - TargetInteractiveObjectComponent->GetWorld()->GetTimeSeconds()) / ActionData->MaxDuration, 0.0f, 1.0f);
+	}
+}
+
 AArcanaPlayerCharacter::AArcanaPlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -159,16 +171,22 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 
 					//CurrentActionEndTime = GetWorld()->GetTimeSeconds() + ActionData->Duration;
 
-					// Apply action buffs
-					if (CurrentQueuedAction->ActionData)
+					if (const UArcanaActionData* ActionData = CurrentQueuedAction->ActionData)
 					{
-						for (const UArcanaBuffData* BuffData : CurrentQueuedAction->ActionData->OngoingBuffs)
+						// Apply action buffs
+						for (const UArcanaBuffData* BuffData : ActionData->OngoingBuffs)
 						{
 							UArcanaBuff* AppliedBuff = GameMode->ApplyBuff(BuffData, CurrentQueuedAction->TargetInteractiveObjectComponent);
 							if (AppliedBuff)
 							{
 								CurrentQueuedAction->AppliedActionBuffs.Add(AppliedBuff);
 							}
+						}
+
+						// Calculate end time
+						if (ActionData->bHasMaxDuration)
+						{
+							CurrentQueuedAction->ActionEndTime = GetWorld()->GetTimeSeconds() + ActionData->MaxDuration;
 						}
 					}
 
@@ -184,7 +202,11 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 			}
 			case EQueuedActionState::InProgress:
 			{
-				// todo[hale] - stop if duration reached
+				if (CurrentQueuedAction->ActionEndTime > -FLT_MAX && GetWorld()->GetTimeSeconds() >= CurrentQueuedAction->ActionEndTime)
+				{
+					CancelQueuedAction(CurrentQueuedAction);
+				}
+
 				break;
 			}
 			case EQueuedActionState::Ending:

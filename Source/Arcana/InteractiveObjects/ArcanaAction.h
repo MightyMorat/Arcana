@@ -22,8 +22,11 @@ public:
 	virtual bool CanEditChange(const UProperty* InProperty) const override;
 #endif
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0.0f))
-	float Duration = 10.0f;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (InlineEditConditionToggle))
+	bool bHasMaxDuration = false;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 1.0f, EditCondition="bHasMaxDuration"))
+	float MaxDuration = 10.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<UArcanaBuffData*> OngoingBuffs;
