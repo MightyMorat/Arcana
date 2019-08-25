@@ -14,7 +14,8 @@ enum class ENeedSatisfaction : uint8
 {
 	Low,
 	Medium,
-	High
+	High,
+	Full
 };
 
 USTRUCT(BlueprintType)

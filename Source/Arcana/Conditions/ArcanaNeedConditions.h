@@ -20,7 +20,7 @@ public:
 	ENeedSatisfaction MinimumSatisfaction = ENeedSatisfaction::Low;
 
 	UPROPERTY(EditAnywhere, Category = "Condition Properties")
-	ENeedSatisfaction MaximumSatisfaction = ENeedSatisfaction::High;
+	ENeedSatisfaction MaximumSatisfaction = ENeedSatisfaction::Full;
 
 private:
 	virtual bool IsConditionMet_Internal(const UObject* WorldContextObject) const override final;

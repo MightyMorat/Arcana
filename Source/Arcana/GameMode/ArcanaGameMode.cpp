@@ -160,7 +160,11 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 		NeedState.Value = FMath::Clamp(NeedState.Value, 0.0f, 1.0f);
 
 		// Calculate satisfaction from value thresholds
-		if (NeedState.Value >= ArcanaSettings->HighNeedThreshold)
+		if (NeedState.Value >= 1.0f)
+		{
+			NeedState.NeedSatisfaction = ENeedSatisfaction::Full;
+		}
+		else if (NeedState.Value >= ArcanaSettings->HighNeedThreshold)
 		{
 			NeedState.NeedSatisfaction = ENeedSatisfaction::High;
 		}
