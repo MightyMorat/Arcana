@@ -3,13 +3,13 @@
 
 #include "ArcanaGameMode.h"
 
+#include "Actions/ArcanaAction.h"
 #include "Buffs/ArcanaBuff.h"
 #include "Buffs/ArcanaBuffData.h"
 #include "Characters/ArcanaPlayerCharacter.h"
 #include "Conditions//ArcanaCondition.h"
 #include "Engine/World.h"
 #include "FunctionLibraries/ArcanaFunctionLibrary.h"
-#include "InteractiveObjects/ArcanaAction.h"
 #include "Settings/ArcanaSettings.h"
 
 AArcanaGameMode::AArcanaGameMode()

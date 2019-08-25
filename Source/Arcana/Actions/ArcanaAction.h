@@ -9,6 +9,7 @@
 
 #include "ArcanaAction.generated.h"
 
+class UArcanaActionEvent;
 class UArcanaBuffData;
 class UArcanaCondition;
 
@@ -36,6 +37,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0.0f))
 	float SkillGainRate = 0.02f;
+
+	UPROPERTY(EditAnywhere, Instanced)
+	TArray<UArcanaActionEvent*> ActionEvents;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
 	UTexture2D* IconTexture;
@@ -73,7 +77,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bIsEnabled = true;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(EditAnywhere)
 	TArray<FArcanaActionCondition> Conditions;
 };
 

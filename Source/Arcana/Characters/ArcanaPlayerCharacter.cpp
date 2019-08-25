@@ -2,20 +2,25 @@
 
 #include "ArcanaPlayerCharacter.h"
 
+#include "Actions/ArcanaAction.h"
 #include "AIController.h"
 #include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameMode/ArcanaGameMode.h"
-#include "InteractiveObjects/ArcanaAction.h"
 #include "InteractiveObjects/InteractiveObjectComponent.h"
 
-void UQueuedAction::InitMoveAction(const FVector& InTargetLocation)
+UWorld* UArcanaQueuedAction::GetWorld() const
+{
+	return TargetInteractiveObjectComponent ? TargetInteractiveObjectComponent->GetWorld() : nullptr;
+}
+
+void UArcanaQueuedAction::InitMoveAction(const FVector& InTargetLocation)
 {
 	Type = EQueuedActionType::MoveTo;
 	TargetLocation = InTargetLocation;
 }
 
-void UQueuedAction::InitInteractionAction(const UArcanaActionData* InActionData, UInteractiveObjectComponent* InTargetInteractiveObjectComponent)
+void UArcanaQueuedAction::InitInteractionAction(const UArcanaActionData* InActionData, UInteractiveObjectComponent* InTargetInteractiveObjectComponent)
 {
 	Type = EQueuedActionType::ObjectInteraction;
 	ActionData = InActionData;
@@ -27,15 +32,16 @@ void UQueuedAction::InitInteractionAction(const UArcanaActionData* InActionData,
 	}
 }
 
-void UQueuedAction::GetActionProgress(bool& bHasEndTime, float& ActionProgress) const
+void UArcanaQueuedAction::GetActionProgress(bool& bHasEndTime, float& ActionProgress) const
 {
 	bHasEndTime = false;
 	ActionProgress = 0.0f;
 
-	if (ActionData && TargetInteractiveObjectComponent && ActionEndTime > -FLT_MAX)
+	UWorld* World = GetWorld();
+	if (ActionData && World && ActionEndTime > -FLT_MAX)
 	{
 		bHasEndTime = true;
-		ActionProgress = FMath::Clamp(1.0f - (ActionEndTime - TargetInteractiveObjectComponent->GetWorld()->GetTimeSeconds()) / ActionData->MaxDuration, 0.0f, 1.0f);
+		ActionProgress = FMath::Clamp(1.0f - (ActionEndTime - World->GetTimeSeconds()) / ActionData->MaxDuration, 0.0f, 1.0f);
 	}
 }
 
@@ -47,7 +53,7 @@ AArcanaPlayerCharacter::AArcanaPlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
-void AArcanaPlayerCharacter::CancelQueuedAction(UQueuedAction* QueuedAction)
+void AArcanaPlayerCharacter::CancelQueuedAction(UArcanaQueuedAction* QueuedAction)
 {
 	if (!QueuedAction)
 		return;
@@ -93,7 +99,7 @@ void AArcanaPlayerCharacter::QueueInteractionAction(const UArcanaActionData* Act
 		}
 	}
 
-	UQueuedAction* QueuedAction = NewObject<UQueuedAction>();
+	UArcanaQueuedAction* QueuedAction = NewObject<UArcanaQueuedAction>();
 	QueuedAction->InitInteractionAction(ActionData, TargetInteractiveObjectComponent);
 
 	ActionQueue.Add(QueuedAction);
@@ -114,7 +120,7 @@ void AArcanaPlayerCharacter::QueueMoveAction(const FVector& TargetLocation)
 		}
 	}
 
-	UQueuedAction* QueuedAction = NewObject<UQueuedAction>();
+	UArcanaQueuedAction* QueuedAction = NewObject<UArcanaQueuedAction>();
 	QueuedAction->InitMoveAction(TargetLocation);
 
 	ActionQueue.Add(QueuedAction);
@@ -124,7 +130,7 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	UQueuedAction* CurrentQueuedAction = ActionQueue.Num() > 0 ? ActionQueue[0] : nullptr;
+	UArcanaQueuedAction* CurrentQueuedAction = ActionQueue.Num() > 0 ? ActionQueue[0] : nullptr;
 	if (CurrentQueuedAction)
 	{
 		switch (CurrentQueuedAction->ActionState)
@@ -197,7 +203,7 @@ const UArcanaActionData* AArcanaPlayerCharacter::GetInProgressActionData() const
 	if (ActionQueue.Num() == 0)
 		return nullptr;
 
-	UQueuedAction* CurrentQueuedAction = ActionQueue[0];
+	UArcanaQueuedAction* CurrentQueuedAction = ActionQueue[0];
 	if (CurrentQueuedAction->ActionState == EQueuedActionState::InProgress)
 	{
 		return CurrentQueuedAction->ActionData;
@@ -214,7 +220,7 @@ void AArcanaPlayerCharacter::OnMoveCompleted(FAIRequestID RequestID, EPathFollow
 		AIController->ReceiveMoveCompleted.RemoveAll(this);
 	}
 
-	UQueuedAction* CurrentQueuedAction = ActionQueue.Num() > 0 ? ActionQueue[0] : nullptr;
+	UArcanaQueuedAction* CurrentQueuedAction = ActionQueue.Num() > 0 ? ActionQueue[0] : nullptr;
 	if (CurrentQueuedAction && CurrentQueuedAction->ActionState == EQueuedActionState::MovingTo)
 	{
 		switch (CurrentQueuedAction->Type)
@@ -233,7 +239,7 @@ void AArcanaPlayerCharacter::OnMoveCompleted(FAIRequestID RequestID, EPathFollow
 	}
 }
 
-void AArcanaPlayerCharacter::BeginInteraction(UQueuedAction* CurrentQueuedAction)
+void AArcanaPlayerCharacter::BeginInteraction(UArcanaQueuedAction* CurrentQueuedAction)
 {
 	if (!CurrentQueuedAction)
 		return;

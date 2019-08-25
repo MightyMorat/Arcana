@@ -30,11 +30,14 @@ enum class EQueuedActionState : uint8
 };
 
 UCLASS(BlueprintType)
-class UQueuedAction : public UObject
+class UArcanaQueuedAction : public UObject
 {
 	GENERATED_BODY()
 
 	friend class AArcanaPlayerCharacter;
+
+public:
+	virtual UWorld* GetWorld() const override;
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure = false)
@@ -77,7 +80,7 @@ public:
 	virtual void Tick(float DeltaSeconds);
 
 	UFUNCTION(BlueprintCallable)
-	void CancelQueuedAction(UQueuedAction* QueuedAction);
+	void CancelQueuedAction(UArcanaQueuedAction* QueuedAction);
 
 	UFUNCTION(BlueprintCallable)
 	void QueueInteractionAction(const UArcanaActionData* ActionData, UInteractiveObjectComponent* TargetInteractiveObjectComponent);
@@ -91,11 +94,11 @@ protected:
 	UFUNCTION()
 	void OnMoveCompleted(struct FAIRequestID RequestID, EPathFollowingResult::Type MovementResult);
 
-	void BeginInteraction(UQueuedAction* CurrentQueuedAction);
+	void BeginInteraction(UArcanaQueuedAction* CurrentQueuedAction);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Actions")
 	int32 MaxQueueSize = 2;
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<UQueuedAction*> ActionQueue;
+	TArray<UArcanaQueuedAction*> ActionQueue;
 };

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "ArcanaAction.h"
+#include "Actions/ArcanaAction.h"
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "InteractiveObjectComponent.generated.h"
@@ -39,5 +39,4 @@ protected:
 
 	bool bIsHovered = false;
 	bool bIsSelected = false;
-		
 };
