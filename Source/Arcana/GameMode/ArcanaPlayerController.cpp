@@ -138,7 +138,7 @@ void AArcanaPlayerController::OnLeftClickReleased()
 			AArcanaPlayerCharacter* PlayerCharacter = GetPlayerCharacter();
 			if (PlayerCharacter)
 			{
-				PlayerCharacter->MoveToLocation(HoveredLocation);
+				PlayerCharacter->QueueMoveAction(HoveredLocation);
 			}
 		}
 	}

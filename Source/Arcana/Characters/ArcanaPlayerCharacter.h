@@ -3,12 +3,66 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Classes/Navigation/PathFollowingComponent.h"
+#include "Containers/Queue.h"
 #include "GameFramework/Character.h"
 #include "ArcanaPlayerCharacter.generated.h"
 
 class UArcanaActionData;
 class UArcanaBuff;
 class UInteractiveObjectComponent;
+
+UENUM(BlueprintType)
+enum class EQueuedActionType : uint8
+{
+	MoveTo,
+	ObjectInteraction
+};
+
+UENUM(BlueprintType)
+enum class EQueuedActionState : uint8
+{
+	NotStarted,
+	MovingTo,
+	InProgress,
+	Ending
+};
+
+UCLASS(BlueprintType)
+class UQueuedAction : public UObject
+{
+	GENERATED_BODY()
+
+	friend class AArcanaPlayerCharacter;
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	EQueuedActionType Type = EQueuedActionType::MoveTo;
+
+	UPROPERTY(BlueprintReadOnly)
+	const UArcanaActionData* ActionData = nullptr;
+
+	UPROPERTY(BlueprintReadOnly)
+	const UInteractiveObjectComponent* TargetInteractiveObjectComponent = nullptr;
+
+	UPROPERTY(BlueprintReadOnly)
+	EQueuedActionState ActionState = EQueuedActionState::NotStarted;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsInterruptible = true;
+
+	UPROPERTY(BlueprintReadOnly)
+	float ActionEndTime = 0.0f;
+
+	UPROPERTY()
+	TArray<UArcanaBuff*> AppliedActionBuffs;
+
+	FVector TargetLocation = FVector::ZeroVector;
+
+	void InitMoveAction(const FVector& InTargetLocation);
+	void InitInteractionAction(const UArcanaActionData* InActionData, UInteractiveObjectComponent* InTargetInteractiveObjectComponent);
+};
 
 UCLASS()
 class ARCANA_API AArcanaPlayerCharacter : public ACharacter
@@ -19,22 +73,24 @@ public:
 	AArcanaPlayerCharacter();
 	virtual void Tick(float DeltaSeconds);
 
-	void MoveToLocation(const FVector& TargetLocation);
+	UFUNCTION(BlueprintCallable)
+	void CancelQueuedAction(UQueuedAction* QueuedAction);
 
 	UFUNCTION(BlueprintCallable)
-	void EndCurrentAction();
+	void QueueInteractionAction(const UArcanaActionData* ActionData, UInteractiveObjectComponent* TargetInteractiveObjectComponent);
 
 	UFUNCTION(BlueprintCallable)
-	void QueueAction(const UArcanaActionData* ActionData, UInteractiveObjectComponent* TargetInteractiveObjectComponent);
+	void QueueMoveAction(const FVector& TargetLocation);
 
-	const UArcanaActionData* GetCurrentActionData() const { return CurrentActionData; }
+	const UArcanaActionData* GetInProgressActionData() const;
 
 protected:
+	UFUNCTION()
+	void OnMoveCompleted(struct FAIRequestID RequestID, EPathFollowingResult::Type MovementResult);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Actions")
+	int32 MaxQueueSize = 2;
+
 	UPROPERTY(BlueprintReadOnly)
-	const UArcanaActionData* CurrentActionData;
-
-	float CurrentActionEndTime = 0.0f;
-
-	UPROPERTY()
-	TArray<UArcanaBuff*> CurrentActionBuffs;
+	TArray<UQueuedAction*> ActionQueue;
 };

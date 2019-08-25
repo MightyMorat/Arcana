@@ -33,6 +33,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0.0f))
 	float SkillGainRate = 0.02f;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UI")
+	UTexture2D* IconTexture;
 };
 
 

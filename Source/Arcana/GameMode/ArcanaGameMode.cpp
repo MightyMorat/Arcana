@@ -119,12 +119,12 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 	const UArcanaSettings* ArcanaSettings = UArcanaSettings::Get();
 
 	// Get skill rate from current action
-	const UArcanaActionData* CurrentActionData = PlayerCharacter ? PlayerCharacter->GetCurrentActionData() : nullptr;
+	const UArcanaActionData* InProgressActionData = PlayerCharacter ? PlayerCharacter->GetInProgressActionData() : nullptr;
 	for (FArcanaSkillState& SkillState : SkillStates)
 	{
-		if (CurrentActionData && CurrentActionData->AffectedSkill == SkillState.Skill)
+		if (InProgressActionData && InProgressActionData->AffectedSkill == SkillState.Skill)
 		{
-			SkillState.ProgressRate = CurrentActionData->SkillGainRate;
+			SkillState.ProgressRate = InProgressActionData->SkillGainRate;
 		}
 		else
 		{
