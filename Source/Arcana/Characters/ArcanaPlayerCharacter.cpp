@@ -3,6 +3,7 @@
 #include "ArcanaPlayerCharacter.h"
 
 #include "Actions/ArcanaAction.h"
+#include "Actions/ArcanaActionEvent.h"
 #include "AIController.h"
 #include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -182,6 +183,21 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 			}
 			case EQueuedActionState::InProgress:
 			{
+				const UArcanaActionData* ActionData = CurrentQueuedAction->ActionData;
+				if (ActionData)
+				{
+					// Trigger conditioned events
+					for (const UArcanaActionEvent* Event : ActionData->ActionEvents)
+					{
+						if (Event && Event->GetTriggerType() == EArcanaActionEventTriggerType::OnConditionsMet
+							&& !CurrentQueuedAction->TriggeredEvents.Contains(Event) && Event->AreConditionsMet(CurrentQueuedAction))
+						{
+							CurrentQueuedAction->TriggeredEvents.Add(Event); // Keep track so we don't trigger it more than once
+							Event->TriggerEffects(CurrentQueuedAction);
+						}
+					}
+				}
+
 				if (CurrentQueuedAction->ActionEndTime > -FLT_MAX && GetWorld()->GetTimeSeconds() >= CurrentQueuedAction->ActionEndTime)
 				{
 					CancelQueuedAction(CurrentQueuedAction);
@@ -257,6 +273,15 @@ void AArcanaPlayerCharacter::BeginInteraction(UArcanaQueuedAction* CurrentQueued
 				{
 					CurrentQueuedAction->AppliedActionBuffs.Add(AppliedBuff);
 				}
+			}
+		}
+
+		// Trigger OnStart events
+		for (const UArcanaActionEvent* Event : ActionData->ActionEvents)
+		{
+			if (Event && Event->GetTriggerType() == EArcanaActionEventTriggerType::OnActionStart && Event->AreConditionsMet(CurrentQueuedAction))
+			{
+				Event->TriggerEffects(CurrentQueuedAction);
 			}
 		}
 

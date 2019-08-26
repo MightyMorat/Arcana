@@ -10,6 +10,7 @@
 #include "ArcanaPlayerCharacter.generated.h"
 
 class UArcanaActionData;
+class UArcanaActionEvent;
 class UArcanaBuff;
 class UInteractiveObjectComponent;
 
@@ -63,6 +64,8 @@ protected:
 
 	UPROPERTY()
 	TArray<UArcanaBuff*> AppliedActionBuffs;
+
+	TArray<const UArcanaActionEvent*> TriggeredEvents;
 
 	FVector TargetLocation = FVector::ZeroVector;
 
