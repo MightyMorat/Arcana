@@ -87,4 +87,12 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Debug Display")
 	FGameplayTagContainer ActiveBuffTags;
+
+private:
+	/** Console commands */
+	UFUNCTION(Exec)
+	void SetNeedValue(FName Need, float Value);
+
+	UFUNCTION(Exec)
+	void SetSkillLevel(FName Skill, int32 Level);
 };

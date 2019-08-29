@@ -292,3 +292,36 @@ UArcanaBuff* AArcanaGameMode::ApplyBuff(const UArcanaBuffData* BuffData, UObject
 
 	return Buff;
 }
+
+/** Console commands */
+void AArcanaGameMode::SetNeedValue(FName Need, float Value)
+{
+	for (FArcanaNeedState& NeedState : NeedStates)
+	{
+		if (NeedState.Need.NeedId == Need)
+		{
+			NeedState.Value = FMath::Clamp(Value, 0.0f, 1.0f);
+			return;
+		}
+	}
+}
+
+void AArcanaGameMode::SetSkillLevel(FName Skill, int32 Level)
+{
+	for (FArcanaSkillState& SkillState : SkillStates)
+	{
+		if (SkillState.Skill.SkillId == Skill)
+		{
+			FArcanaSkillDefinition SkillDefinition;
+			bool bFound = false;
+			UArcanaFunctionLibrary::GetSkillDefinition(SkillState.Skill, bFound, SkillDefinition);
+			if (bFound)
+			{
+				SkillState.CurrentLevel = FMath::Clamp(Level, 0, SkillDefinition.MaxLevel);
+				SkillState.ProgressToNextLevel = 0.0f;
+			}
+
+			return;
+		}
+	}
+}
