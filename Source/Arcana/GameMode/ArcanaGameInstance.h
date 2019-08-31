@@ -19,22 +19,22 @@ struct ARCANA_API FArcanaStartingScenario : public FTableRowBase
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText DisplayName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName LevelName = NAME_None;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FArcanaNeed> StartingNeeds;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<const UArcanaBuffData*> StartingBuffs;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<FArcanaSkill, int32> StartingSkillLevels;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 StartingCurrency = 0;
 };
 
