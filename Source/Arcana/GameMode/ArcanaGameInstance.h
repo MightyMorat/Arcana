@@ -29,10 +29,10 @@ public:
 	TArray<FArcanaNeed> StartingNeeds;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TMap<FArcanaSkill, int32> StartingSkillLevels;
+	TArray<const UArcanaBuffData*> StartingBuffs;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TArray<const UArcanaBuffData*> StartingBuffs;
+	TMap<FArcanaSkill, int32> StartingSkillLevels;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	int32 StartingCurrency = 0;

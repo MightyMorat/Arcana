@@ -4,6 +4,7 @@
 #include "ArcanaGameMode.h"
 
 #include "Actions/ArcanaAction.h"
+#include "ArcanaGameInstance.h"
 #include "Buffs/ArcanaBuff.h"
 #include "Buffs/ArcanaBuffData.h"
 #include "Characters/ArcanaPlayerCharacter.h"
@@ -21,27 +22,7 @@ void AArcanaGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Add starting buffs (do this directly because we don't want to check application conditions on these)
-	for (const UArcanaBuffData* BuffData : StartingBuffs)
-	{
-		UArcanaBuff* Buff = NewObject<UArcanaBuff>();
-		Buff->BuffData = BuffData;
-		Buff->ContextObject = this;
-		Buffs.Add(Buff);
-	}
-
-	// Populate skill states
-	SkillStates.Empty();
-	UDataTable* SkillsDataTable = UArcanaSettings::Get()->SkillsDataTable.LoadSynchronous();
-	if (SkillsDataTable)
-	{
-		const TArray<FName> SkillNames = SkillsDataTable->GetRowNames();
-		for (const FName& SkillName : SkillNames)
-		{
-			FArcanaSkillState& SkillState = SkillStates.AddDefaulted_GetRef();
-			SkillState.Skill.SkillId = SkillName;
-		}
-	}
+	GameInstance = GetGameInstance<UArcanaGameInstance>();
 }
 
 APawn* AArcanaGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
@@ -63,13 +44,16 @@ void AArcanaGameMode::GetNeedState(FArcanaNeed Need, bool& bFound, FArcanaNeedSt
 	bFound = false;
 	OutNeedState = FArcanaNeedState();
 
-	for (const FArcanaNeedState& NeedState : NeedStates)
+	if (GameInstance)
 	{
-		if (NeedState.Need == Need)
+		for (const FArcanaNeedState& NeedState : GameInstance->NeedStates)
 		{
-			bFound = true;
-			OutNeedState = NeedState;
-			return;
+			if (NeedState.Need == Need)
+			{
+				bFound = true;
+				OutNeedState = NeedState;
+				return;
+			}
 		}
 	}
 }
@@ -77,9 +61,13 @@ void AArcanaGameMode::GetNeedState(FArcanaNeed Need, bool& bFound, FArcanaNeedSt
 TArray<FArcanaNeed> AArcanaGameMode::GetActiveNeeds() const
 {
 	TArray<FArcanaNeed> ActiveNeeds;
-	for (const FArcanaNeedState& NeedState : NeedStates)
+
+	if (GameInstance)
 	{
-		ActiveNeeds.Add(NeedState.Need);
+		for (const FArcanaNeedState& NeedState : GameInstance->NeedStates)
+		{
+			ActiveNeeds.Add(NeedState.Need);
+		}
 	}
 
 	return ActiveNeeds;
@@ -90,13 +78,16 @@ void AArcanaGameMode::GetSkillState(FArcanaSkill Skill, bool& bFound, FArcanaSki
 	bFound = false;
 	OutSkillState = FArcanaSkillState();
 
-	for (const FArcanaSkillState& SkillState : SkillStates)
+	if (GameInstance)
 	{
-		if (SkillState.Skill == Skill)
+		for (const FArcanaSkillState& SkillState : GameInstance->SkillStates)
 		{
-			bFound = true;
-			OutSkillState = SkillState;
-			return;
+			if (SkillState.Skill == Skill)
+			{
+				bFound = true;
+				OutSkillState = SkillState;
+				return;
+			}
 		}
 	}
 }
@@ -104,9 +95,13 @@ void AArcanaGameMode::GetSkillState(FArcanaSkill Skill, bool& bFound, FArcanaSki
 TArray<FArcanaSkill> AArcanaGameMode::GetActiveSkills() const
 {
 	TArray<FArcanaSkill> ActiveSkills;
-	for (const FArcanaSkillState& SkillState : SkillStates)
+
+	if (GameInstance)
 	{
-		ActiveSkills.Add(SkillState.Skill);
+		for (const FArcanaSkillState& SkillState : GameInstance->SkillStates)
+		{
+			ActiveSkills.Add(SkillState.Skill);
+		}
 	}
 
 	return ActiveSkills;
@@ -116,11 +111,14 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (!GameInstance)
+		return;
+
 	const UArcanaSettings* ArcanaSettings = UArcanaSettings::Get();
 
 	// Get skill rate from current action
 	const UArcanaActionData* InProgressActionData = PlayerCharacter ? PlayerCharacter->GetInProgressActionData() : nullptr;
-	for (FArcanaSkillState& SkillState : SkillStates)
+	for (FArcanaSkillState& SkillState : GameInstance->SkillStates)
 	{
 		if (InProgressActionData && InProgressActionData->AffectedSkill == SkillState.Skill)
 		{
@@ -133,7 +131,7 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 	}
 
 	// Clear last frame's rate data
-	for (FArcanaNeedState& NeedState : NeedStates)
+	for (FArcanaNeedState& NeedState : GameInstance->NeedStates)
 	{
 		NeedState.Rate = 0.0f;
 	}
@@ -143,7 +141,7 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 	ActiveBuffTags.AppendTags(UpdateBuffs(EBuffUpdateTime::LateUpdate));
 
 	// Update needs
-	for (FArcanaNeedState& NeedState : NeedStates)
+	for (FArcanaNeedState& NeedState : GameInstance->NeedStates)
 	{
 		// Clamp rate at the boundaries
 		if (NeedState.Value == 0.0f)
@@ -179,7 +177,7 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 	}
 
 	// Update skills
-	for (FArcanaSkillState& SkillState : SkillStates)
+	for (FArcanaSkillState& SkillState : GameInstance->SkillStates)
 	{
 		FArcanaSkillDefinition SkillDefinition;
 		bool bFound = false;
@@ -215,8 +213,11 @@ FGameplayTagContainer AArcanaGameMode::UpdateBuffs(EBuffUpdateTime UpdateTime)
 {
 	FGameplayTagContainer AccumulatedBuffTags;
 
+	if (!GameInstance)
+		return AccumulatedBuffTags;
+
 	// Accumulate need rates from buffs
-	for (UArcanaBuff* Buff : Buffs)
+	for (UArcanaBuff* Buff : GameInstance->Buffs)
 	{
 		const UArcanaBuffData* BuffData = Buff->BuffData;
 		if (!BuffData)
@@ -245,7 +246,7 @@ FGameplayTagContainer AArcanaGameMode::UpdateBuffs(EBuffUpdateTime UpdateTime)
 		AccumulatedBuffTags.AppendTags(BuffData->AutogeneratedTags);
 		AccumulatedBuffTags.AppendTags(BuffData->AdditionalTags);
 
-		for (FArcanaNeedState& NeedState : NeedStates)
+		for (FArcanaNeedState& NeedState : GameInstance->NeedStates)
 		{
 			if (const float* ModifierValue = BuffData->NeedRateModifiers.Find(NeedState.Need))
 			{
@@ -261,14 +262,17 @@ TArray<UArcanaBuff*> AArcanaGameMode::GetActiveBuffs(FArcanaNeed AffectedNeed) c
 {
 	TArray<UArcanaBuff*> ActiveBuffs;
 
-	for (UArcanaBuff* Buff : Buffs)
+	if (GameInstance)
 	{
-		if (!Buff->bIsActive || !Buff->BuffData)
-			continue;
-
-		if (Buff->BuffData->NeedRateModifiers.Contains(AffectedNeed))
+		for (UArcanaBuff* Buff : GameInstance->Buffs)
 		{
-			ActiveBuffs.Add(Buff);
+			if (!Buff->bIsActive || !Buff->BuffData)
+				continue;
+
+			if (Buff->BuffData->NeedRateModifiers.Contains(AffectedNeed))
+			{
+				ActiveBuffs.Add(Buff);
+			}
 		}
 	}
 
@@ -277,6 +281,9 @@ TArray<UArcanaBuff*> AArcanaGameMode::GetActiveBuffs(FArcanaNeed AffectedNeed) c
 
 UArcanaBuff* AArcanaGameMode::ApplyBuff(const UArcanaBuffData* BuffData, UObject* ContextObject)
 {
+	if (!GameInstance)
+		return nullptr;
+
 	for (const UArcanaCondition* Condition : BuffData->ApplicationConditions)
 	{
 		if (Condition && !Condition->IsConditionMet(ContextObject))
@@ -288,15 +295,34 @@ UArcanaBuff* AArcanaGameMode::ApplyBuff(const UArcanaBuffData* BuffData, UObject
 	UArcanaBuff* Buff = NewObject<UArcanaBuff>();
 	Buff->BuffData = BuffData;
 	Buff->ContextObject = ContextObject;
-	Buffs.Add(Buff);
+	GameInstance->Buffs.Add(Buff);
 
 	return Buff;
+}
+
+int32 AArcanaGameMode::GetCurrency() const
+{
+	if (!GameInstance)
+		return 0;
+
+	return GameInstance->Currency;
+}
+
+void AArcanaGameMode::RemoveBuff(UArcanaBuff* Buff)
+{
+	if (!GameInstance)
+		return;
+
+	GameInstance->Buffs.Remove(Buff);
 }
 
 /** Console commands */
 void AArcanaGameMode::SetNeedValue(FName Need, float Value)
 {
-	for (FArcanaNeedState& NeedState : NeedStates)
+	if (!GameInstance)
+		return;
+
+	for (FArcanaNeedState& NeedState : GameInstance->NeedStates)
 	{
 		if (NeedState.Need.NeedId == Need)
 		{
@@ -308,7 +334,10 @@ void AArcanaGameMode::SetNeedValue(FName Need, float Value)
 
 void AArcanaGameMode::SetSkillLevel(FName Skill, int32 Level)
 {
-	for (FArcanaSkillState& SkillState : SkillStates)
+	if (!GameInstance)
+		return;
+
+	for (FArcanaSkillState& SkillState : GameInstance->SkillStates)
 	{
 		if (SkillState.Skill.SkillId == Skill)
 		{

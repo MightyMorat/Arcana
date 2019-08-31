@@ -16,6 +16,7 @@ enum class EBuffUpdateTime : uint8;
 struct FGameplayTagContainer;
 class UArcanaBuff;
 class UArcanaBuffData;
+class UArcanaGameInstance;
 
 /**
  * 
@@ -35,7 +36,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AArcanaPlayerCharacter* GetPlayerCharacter() const { return PlayerCharacter; }
 
-	int32 GetCurrency() const { return Currency; }
+	UFUNCTION(BlueprintCallable)
+	int32 GetCurrency() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
 	void GetNeedState(FArcanaNeed Need, bool& bFound, FArcanaNeedState& NeedState) const;
@@ -56,7 +58,7 @@ public:
 	UArcanaBuff* ApplyBuff(const UArcanaBuffData* BuffData, UObject* ContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void RemoveBuff(UArcanaBuff* Buff) { Buffs.Remove(Buff); }
+	void RemoveBuff(UArcanaBuff* Buff);
 
 	const FGameplayTagContainer& GetActiveBuffTags() const { return ActiveBuffTags; }
 
@@ -70,20 +72,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	AArcanaPlayerCharacter* PlayerCharacter = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	TArray<FArcanaNeedState> NeedStates;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Gameplay")
-	TArray<FArcanaSkillState> SkillStates;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Gameplay", meta = (AllowPrivateAccess = "true"))
-	int32 Currency = 0;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	TArray<const UArcanaBuffData*> StartingBuffs;
-
 	UPROPERTY()
-	TArray<UArcanaBuff*> Buffs;
+	UArcanaGameInstance* GameInstance = nullptr;
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Debug Display")
 	FGameplayTagContainer ActiveBuffTags;
