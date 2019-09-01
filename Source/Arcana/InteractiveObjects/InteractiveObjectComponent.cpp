@@ -10,7 +10,7 @@
 
 UInteractiveObjectComponent::UInteractiveObjectComponent()
 {
-	static ConstructorHelpers::FClassFinder<UUserWidget> InteractOptionsWidgetClassFinder(TEXT("/Game/UI/Widgets/UI_BP_InteractOptions"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> InteractOptionsWidgetClassFinder(TEXT("/Game/UI/Widgets/HUD/UI_BP_InteractOptions"));
 	if (InteractOptionsWidgetClassFinder.Succeeded())
 	{
 		InteractOptionsWidgetClass = InteractOptionsWidgetClassFinder.Class;
