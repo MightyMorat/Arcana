@@ -23,4 +23,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Skills")
 	static void GetSkillDefinition(FArcanaSkill Skill, bool& bFound, FArcanaSkillDefinition& SkillDefinition);
+
+	UFUNCTION(BlueprintCallable, Category = "Time", meta = (WorldContext = "WorldContextObject"))
+	static float GetRealDeltaSeconds(const UObject* WorldContextObject);
 };

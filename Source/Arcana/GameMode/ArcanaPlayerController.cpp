@@ -8,6 +8,7 @@
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
+#include "FunctionLibraries/ArcanaFunctionLibrary.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -185,7 +186,7 @@ void AArcanaPlayerController::OnMouseX(float AxisValue)
 	if (!PawnActor)
 		return;
 
-	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
+	const float DeltaSeconds = UArcanaFunctionLibrary::GetRealDeltaSeconds(this);
 
 	if (bRMBPressed)
 	{
@@ -195,7 +196,7 @@ void AArcanaPlayerController::OnMouseX(float AxisValue)
 
 void AArcanaPlayerController::OnMouseWheel(float AxisValue)
 {
-	const float DeltaSeconds = UGameplayStatics::GetWorldDeltaSeconds(this);
+	const float DeltaSeconds = UArcanaFunctionLibrary::GetRealDeltaSeconds(this);
 
 	ZoomAlpha = FMath::Clamp(ZoomAlpha + AxisValue*DeltaSeconds*ZoomAlphaRate, 0.0f, 1.0f);
 

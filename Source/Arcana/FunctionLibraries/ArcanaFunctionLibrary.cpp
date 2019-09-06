@@ -3,6 +3,9 @@
 
 #include "ArcanaFunctionLibrary.h"
 
+#include "Classes/Engine/Engine.h"
+#include "Classes/Engine/World.h"
+#include "Classes/GameFramework/WorldSettings.h"
 #include "Settings/ArcanaSettings.h"
 
 void UArcanaFunctionLibrary::GetNeedDefinition(FArcanaNeed Need, bool& bFound, FArcanaNeedDefinition& NeedDefinition)
@@ -37,4 +40,15 @@ void UArcanaFunctionLibrary::GetSkillDefinition(FArcanaSkill Skill, bool& bFound
 			SkillDefinition = *Definition;
 		}
 	}
+}
+
+float UArcanaFunctionLibrary::GetRealDeltaSeconds(const UObject* WorldContextObject)
+{
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (!World)
+		return 0.0f;
+
+	float DeltaSeconds = World->GetDeltaSeconds();
+	const float TimeDilation = World->GetWorldSettings()->TimeDilation;
+	return TimeDilation > 0.0f ? DeltaSeconds / TimeDilation : DeltaSeconds;
 }
