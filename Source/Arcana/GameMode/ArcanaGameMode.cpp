@@ -33,6 +33,7 @@ APawn* AArcanaGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* 
 		FActorSpawnParameters SpawnInfo;
 		SpawnInfo.Instigator = Instigator;
 		SpawnInfo.ObjectFlags |= RF_Transient;	// We never want to save the player character into a map
+		SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		PlayerCharacter = GetWorld()->SpawnActor<AArcanaPlayerCharacter>(PlayerCharacterClass, SpawnTransform, SpawnInfo);
 	}
 
