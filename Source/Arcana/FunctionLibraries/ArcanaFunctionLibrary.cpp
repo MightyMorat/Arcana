@@ -52,3 +52,9 @@ float UArcanaFunctionLibrary::GetRealDeltaSeconds(const UObject* WorldContextObj
 	const float TimeDilation = World->GetWorldSettings()->TimeDilation;
 	return TimeDilation > 0.0f ? DeltaSeconds / TimeDilation : DeltaSeconds;
 }
+
+float UArcanaFunctionLibrary::GetDeltaGameHours(float DeltaSeconds)
+{
+	const float GameHourRealTimeSeconds = FMath::Max(UArcanaSettings::Get()->GameHourRealTimeSeconds, 1.0f);
+	return DeltaSeconds / GameHourRealTimeSeconds;
+}

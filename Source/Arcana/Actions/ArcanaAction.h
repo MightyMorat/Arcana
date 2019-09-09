@@ -26,8 +26,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (InlineEditConditionToggle))
 	bool bHasMaxDuration = false;
 
+	/** In game hours */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 1.0f, EditCondition="bHasMaxDuration"))
-	float MaxDuration = 10.0f;
+	float MaxDuration = 1.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<UArcanaBuffData*> OngoingBuffs;
@@ -35,8 +36,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FArcanaSkill AffectedSkill;
 
+	/** Per game hour */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0.0f))
-	float SkillGainRate = 0.02f;
+	float SkillGainRate = 0.1f;
 
 	UPROPERTY(EditAnywhere, Instanced)
 	TArray<UArcanaActionEvent*> ActionEvents;

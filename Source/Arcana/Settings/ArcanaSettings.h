@@ -31,4 +31,8 @@ public:
 
 	UPROPERTY(EditAnywhere, config, Category = "Skills")
 	TAssetPtr<UDataTable> SkillsDataTable;
+
+	/** The number of seconds that must pass in real time for 1 hour to pass in game (at 1x speed) */
+	UPROPERTY(EditAnywhere, config, Category = "Time", meta = (ClampMin = 1.0f))
+	float GameHourRealTimeSeconds = 30.0f;
 };

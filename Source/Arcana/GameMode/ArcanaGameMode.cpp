@@ -111,6 +111,8 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	const float DeltaGameHours = UArcanaFunctionLibrary::GetDeltaGameHours(DeltaSeconds);
+
 	if (!GameInstance)
 		return;
 
@@ -154,7 +156,7 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 		}
 
 		// Update value based on current rate
-		NeedState.Value += DeltaSeconds*NeedState.Rate;
+		NeedState.Value += DeltaGameHours*NeedState.Rate;
 		NeedState.Value = FMath::Clamp(NeedState.Value, 0.0f, 1.0f);
 
 		// Calculate satisfaction from value thresholds
@@ -193,7 +195,7 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 		}
 
 		// Update value based on current rate
-		SkillState.ProgressToNextLevel += DeltaSeconds * SkillState.ProgressRate;
+		SkillState.ProgressToNextLevel += DeltaGameHours * SkillState.ProgressRate;
 		while (SkillState.ProgressToNextLevel >= 1.0f)
 		{
 			++SkillState.CurrentLevel;

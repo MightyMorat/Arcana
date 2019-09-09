@@ -69,6 +69,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (DefaultValue = "1.0f"))
 	float Value = 1.0f;
 
+	/** Value change per game hour */
 	UPROPERTY(BlueprintReadOnly)
 	float Rate = 0.0f;
 

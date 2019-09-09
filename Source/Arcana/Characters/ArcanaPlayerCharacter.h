@@ -42,7 +42,7 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure = false)
-	void GetActionProgress(bool& bHasEndTime, float& ActionProgress) const;
+	float GetActionProgress() const;
 
 	UPROPERTY(BlueprintReadOnly)
 	EQueuedActionType Type = EQueuedActionType::MoveTo;
@@ -60,7 +60,7 @@ protected:
 	bool bIsInterruptible = true;
 
 	UPROPERTY(BlueprintReadOnly)
-	float ActionEndTime = -FLT_MAX;
+	float ActionRemainingTime = -FLT_MAX;
 
 	UPROPERTY()
 	TArray<UArcanaBuff*> AppliedActionBuffs;

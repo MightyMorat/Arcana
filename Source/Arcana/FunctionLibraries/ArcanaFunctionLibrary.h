@@ -26,4 +26,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Time", meta = (WorldContext = "WorldContextObject"))
 	static float GetRealDeltaSeconds(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "Time")
+	static float GetDeltaGameHours(float DeltaSeconds);
 };

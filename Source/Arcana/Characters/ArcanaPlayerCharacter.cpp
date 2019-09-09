@@ -6,6 +6,7 @@
 #include "Actions/ArcanaActionEvent.h"
 #include "AIController.h"
 #include "Engine/World.h"
+#include "FunctionLibraries/ArcanaFunctionLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameMode/ArcanaGameMode.h"
 #include "InteractiveObjects/InteractiveObjectComponent.h"
@@ -33,17 +34,14 @@ void UArcanaQueuedAction::InitInteractionAction(const UArcanaActionData* InActio
 	}
 }
 
-void UArcanaQueuedAction::GetActionProgress(bool& bHasEndTime, float& ActionProgress) const
+float UArcanaQueuedAction::GetActionProgress() const
 {
-	bHasEndTime = false;
-	ActionProgress = 0.0f;
-
-	UWorld* World = GetWorld();
-	if (ActionData && World && ActionEndTime > -FLT_MAX)
+	if (ActionData && ActionData->bHasMaxDuration)
 	{
-		bHasEndTime = true;
-		ActionProgress = FMath::Clamp(1.0f - (ActionEndTime - World->GetTimeSeconds()) / ActionData->MaxDuration, 0.0f, 1.0f);
+		return FMath::Clamp(1.0f - ActionRemainingTime / ActionData->MaxDuration, 0.0f, 1.0f);
 	}
+
+	return 0.0f;
 }
 
 AArcanaPlayerCharacter::AArcanaPlayerCharacter()
@@ -186,6 +184,12 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 				const UArcanaActionData* ActionData = CurrentQueuedAction->ActionData;
 				if (ActionData)
 				{
+					if (ActionData->bHasMaxDuration)
+					{
+						const float DeltaGameHours = UArcanaFunctionLibrary::GetDeltaGameHours(DeltaSeconds);
+						CurrentQueuedAction->ActionRemainingTime -= DeltaGameHours;
+					}
+
 					// Trigger conditioned events
 					for (const UArcanaActionEvent* Event : ActionData->ActionEvents)
 					{
@@ -196,11 +200,11 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 							Event->TriggerEffects(CurrentQueuedAction);
 						}
 					}
-				}
 
-				if (CurrentQueuedAction->ActionEndTime > -FLT_MAX && GetWorld()->GetTimeSeconds() >= CurrentQueuedAction->ActionEndTime)
-				{
-					CancelQueuedAction(CurrentQueuedAction);
+					if (ActionData->bHasMaxDuration && CurrentQueuedAction->ActionRemainingTime <= 0.0f)
+					{
+						CancelQueuedAction(CurrentQueuedAction);
+					}
 				}
 
 				break;
@@ -285,10 +289,10 @@ void AArcanaPlayerCharacter::BeginInteraction(UArcanaQueuedAction* CurrentQueued
 			}
 		}
 
-		// Calculate end time
+		// Set duration
 		if (ActionData->bHasMaxDuration)
 		{
-			CurrentQueuedAction->ActionEndTime = GetWorld()->GetTimeSeconds() + ActionData->MaxDuration;
+			CurrentQueuedAction->ActionRemainingTime = ActionData->MaxDuration;
 		}
 	}
 

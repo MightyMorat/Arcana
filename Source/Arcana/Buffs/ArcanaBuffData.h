@@ -52,6 +52,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Buff Tags")
 	FGameplayTagContainer AdditionalTags;
 
+	/** Need value changes per game hour */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NeedModifiers")
 	TMap<FArcanaNeed, float> NeedRateModifiers;
 
