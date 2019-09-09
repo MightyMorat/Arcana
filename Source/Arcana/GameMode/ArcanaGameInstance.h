@@ -36,6 +36,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 StartingCurrency = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 StartingHour = 8;
 };
 
 /**
@@ -46,6 +49,7 @@ class ARCANA_API UArcanaGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
+public:
 	friend class AArcanaGameMode;
 
 	UFUNCTION(BlueprintCallable)
@@ -55,6 +59,8 @@ private:
 	TArray<FArcanaNeedState> NeedStates;
 	TArray<FArcanaSkillState> SkillStates;
 	int32 Currency = 0;
+
+	float TotalTimeHours = 0.0f;
 
 	UPROPERTY()
 	TArray<UArcanaBuff*> Buffs;

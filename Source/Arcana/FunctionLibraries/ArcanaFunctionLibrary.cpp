@@ -6,6 +6,7 @@
 #include "Classes/Engine/Engine.h"
 #include "Classes/Engine/World.h"
 #include "Classes/GameFramework/WorldSettings.h"
+#include "GameMode/ArcanaGameInstance.h"
 #include "Settings/ArcanaSettings.h"
 
 void UArcanaFunctionLibrary::GetNeedDefinition(FArcanaNeed Need, bool& bFound, FArcanaNeedDefinition& NeedDefinition)

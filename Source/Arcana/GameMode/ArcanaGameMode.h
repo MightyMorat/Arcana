@@ -8,6 +8,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Needs/ArcanaNeed.h"
 #include "Skills/ArcanaSkill.h"
+#include "Time/ArcanaTime.h"
 
 #include "ArcanaGameMode.generated.h"
 
@@ -36,29 +37,32 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AArcanaPlayerCharacter* GetPlayerCharacter() const { return PlayerCharacter; }
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Currency")
 	int32 GetCurrency() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Needs")
 	void GetNeedState(FArcanaNeed Need, bool& bFound, FArcanaNeedState& NeedState) const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Needs")
 	TArray<FArcanaNeed> GetActiveNeeds() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Skills")
 	void GetSkillState(FArcanaSkill Skill, bool& bFound, FArcanaSkillState& SkillState) const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Skills")
 	TArray<FArcanaSkill> GetActiveSkills() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Gameplay")
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Buffs")
 	TArray<UArcanaBuff*> GetActiveBuffs(FArcanaNeed AffectedNeed) const;
 
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintCallable, Category = "Buffs")
 	UArcanaBuff* ApplyBuff(const UArcanaBuffData* BuffData, UObject* ContextObject);
 
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintCallable, Category = "Buffs")
 	void RemoveBuff(UArcanaBuff* Buff);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Time")
+	FArcanaTimeInfo GetTimeInfo() const;
 
 	const FGameplayTagContainer& GetActiveBuffTags() const { return ActiveBuffTags; }
 

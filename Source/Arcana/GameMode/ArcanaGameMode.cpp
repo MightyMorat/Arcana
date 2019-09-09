@@ -116,6 +116,8 @@ void AArcanaGameMode::Tick(float DeltaSeconds)
 	if (!GameInstance)
 		return;
 
+	GameInstance->TotalTimeHours += DeltaGameHours;
+
 	const UArcanaSettings* ArcanaSettings = UArcanaSettings::Get();
 
 	// Get skill rate from current action
@@ -308,6 +310,18 @@ int32 AArcanaGameMode::GetCurrency() const
 		return 0;
 
 	return GameInstance->Currency;
+}
+
+FArcanaTimeInfo AArcanaGameMode::GetTimeInfo() const
+{
+	FArcanaTimeInfo TimeInfo;
+
+	if (GameInstance)
+	{
+		TimeInfo.InitFromTotalTimeHours(GameInstance->TotalTimeHours);
+	}
+
+	return TimeInfo;
 }
 
 void AArcanaGameMode::RemoveBuff(UArcanaBuff* Buff)

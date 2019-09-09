@@ -35,4 +35,20 @@ public:
 	/** The number of seconds that must pass in real time for 1 hour to pass in game (at 1x speed) */
 	UPROPERTY(EditAnywhere, config, Category = "Time", meta = (ClampMin = 1.0f))
 	float GameHourRealTimeSeconds = 30.0f;
+
+	/** The hour of the day when dusk becomes night (24 hour clock) */
+	UPROPERTY(EditAnywhere, config, Category = "Time", meta = (ClampMin = 12, ClampMax = 23))
+	int32 NightStartHour = 21;
+
+	/** The hour of the day when night becomes dawn (24 hour clock) */
+	UPROPERTY(EditAnywhere, config, Category = "Time", meta = (ClampMin = 0, ClampMax = 11))
+	int32 NightEndHour = 6;
+
+	/** The hour of the day when dawn becomes day (24 hour clock) */
+	UPROPERTY(EditAnywhere, config, Category = "Time", meta = (ClampMin = 0, ClampMax = 11))
+	int32 DayStartHour = 8;
+
+	/** The hour of the day when day becomes dusk (24 hour clock) */
+	UPROPERTY(EditAnywhere, config, Category = "Time", meta = (ClampMin = 12, ClampMax = 23))
+	int32 DayEndHour = 19;
 };

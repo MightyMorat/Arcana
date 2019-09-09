@@ -48,6 +48,9 @@ void UArcanaGameInstance::LoadScenario(const FArcanaStartingScenario& Scenario)
 
 	Currency = Scenario.StartingCurrency;
 
+	// Init time
+	TotalTimeHours = (float)Scenario.StartingHour;
+
 	// Load level
 	UGameplayStatics::OpenLevel(this, Scenario.LevelName);
 }
