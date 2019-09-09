@@ -17,7 +17,8 @@ public class Arcana : ModuleRules
             "Slate",
             "UMG",
             "AIModule",
-            "GameplayTags"
+            "GameplayTags",
+            "MoviePlayer"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

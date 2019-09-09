@@ -52,6 +52,13 @@ class ARCANA_API UArcanaGameInstance : public UGameInstance
 public:
 	friend class AArcanaGameMode;
 
+	virtual void Init() override;
+
+	UFUNCTION()
+	virtual void BeginLoadingScreen(const FString& MapName);
+	UFUNCTION()
+	virtual void EndLoadingScreen(UWorld* InLoadedWorld);
+
 	UFUNCTION(BlueprintCallable)
 	void LoadScenario(const FArcanaStartingScenario& Scenario);
 

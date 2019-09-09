@@ -6,7 +6,30 @@
 #include "Buffs/ArcanaBuff.h"
 #include "Buffs/ArcanaBuffData.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
+#include "MoviePlayer/Public/MoviePlayer.h"
 #include "Settings/ArcanaSettings.h"
+
+void UArcanaGameInstance::Init()
+{
+	Super::Init();
+
+	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UArcanaGameInstance::BeginLoadingScreen);
+	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UArcanaGameInstance::EndLoadingScreen);
+}
+
+void UArcanaGameInstance::BeginLoadingScreen(const FString& InMapName)
+{
+	FLoadingScreenAttributes LoadingScreen;
+	LoadingScreen.bAutoCompleteWhenLoadingCompletes = false;
+	LoadingScreen.WidgetLoadingScreen = FLoadingScreenAttributes::NewTestLoadingScreenWidget();
+
+	GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);
+}
+
+void UArcanaGameInstance::EndLoadingScreen(UWorld* InLoadedWorld)
+{
+
+}
 
 void UArcanaGameInstance::LoadScenario(const FArcanaStartingScenario& Scenario)
 {
