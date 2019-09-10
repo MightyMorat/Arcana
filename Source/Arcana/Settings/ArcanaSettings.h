@@ -18,7 +18,7 @@ class ARCANA_API UArcanaSettings : public UDeveloperSettings
 public:
 	static UArcanaSettings* Get() { return GetMutableDefault<UArcanaSettings>(); }
 
-	/** The hour of the day when day becomes dusk (24 hour clock) */
+	/** Selection of textures that will be randomly picked from in the loading screen */
 	UPROPERTY(EditAnywhere, config, Category = "UI")
 	TArray<TSoftObjectPtr<UTexture2D>> LoadingScreenTextures;
 
