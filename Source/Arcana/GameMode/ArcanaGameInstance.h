@@ -52,12 +52,13 @@ class ARCANA_API UArcanaGameInstance : public UGameInstance
 public:
 	friend class AArcanaGameMode;
 
+	UArcanaGameInstance();
 	virtual void Init() override;
 
 	UFUNCTION()
 	virtual void BeginLoadingScreen(const FString& MapName);
-	UFUNCTION()
-	virtual void EndLoadingScreen(UWorld* InLoadedWorld);
+	//UFUNCTION()
+	//virtual void EndLoadingScreen(UWorld* InLoadedWorld);
 
 	UFUNCTION(BlueprintCallable)
 	void LoadScenario(const FArcanaStartingScenario& Scenario);
@@ -71,4 +72,7 @@ private:
 
 	UPROPERTY()
 	TArray<UArcanaBuff*> Buffs;
+
+	UPROPERTY()
+	TArray<UTexture2D*> LoadingScreenTextures;
 };

@@ -18,6 +18,10 @@ class ARCANA_API UArcanaSettings : public UDeveloperSettings
 public:
 	static UArcanaSettings* Get() { return GetMutableDefault<UArcanaSettings>(); }
 
+	/** The hour of the day when day becomes dusk (24 hour clock) */
+	UPROPERTY(EditAnywhere, config, Category = "UI")
+	TArray<TSoftObjectPtr<UTexture2D>> LoadingScreenTextures;
+
 	UPROPERTY(EditAnywhere, config, Category = "Needs")
 	TAssetPtr<UDataTable> NeedsDataTable;
 
