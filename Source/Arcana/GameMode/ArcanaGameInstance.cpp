@@ -137,6 +137,8 @@ void UArcanaGameInstance::LoadScenario(const FArcanaStartingScenario& Scenario)
 	// Init time
 	TotalTimeHours = (float)Scenario.StartingHour;
 
+	bIsScenarioLoaded = true;
+
 	// Load level
 	UGameplayStatics::OpenLevel(this, Scenario.LevelName);
 }

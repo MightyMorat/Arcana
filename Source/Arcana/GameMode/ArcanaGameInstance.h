@@ -63,12 +63,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadScenario(const FArcanaStartingScenario& Scenario);
 
+	UFUNCTION(BlueprintCallable)
+	bool GetIsScenarioLoaded() const { return bIsScenarioLoaded; }
+
 private:
 	TArray<FArcanaNeedState> NeedStates;
 	TArray<FArcanaSkillState> SkillStates;
 	int32 Currency = 0;
 
 	float TotalTimeHours = 0.0f;
+	bool bIsScenarioLoaded = false;
 
 	UPROPERTY()
 	TArray<UArcanaBuff*> Buffs;
