@@ -106,17 +106,16 @@ void AArcanaPlayerCharacter::QueueInteractionAction(const UArcanaActionData* Act
 
 void AArcanaPlayerCharacter::QueueMoveAction(const FVector& TargetLocation)
 {
+	// Don't queue two movement commands in a row - just update to the new target location
+	if (ActionQueue.Num() > 0 && ActionQueue.Last()->Type == EQueuedActionType::MoveTo)
+	{
+		CancelQueuedAction(ActionQueue.Last());
+	}
+
+	// If the queue is full (and there wasn't a move command at the end), ignore the request
 	if (ActionQueue.Num() >= MaxQueueSize)
 	{
-		if (MaxQueueSize > 1)
-		{
-			// Replace the top of the queue
-			CancelQueuedAction(ActionQueue.Last());
-		}
-		else
-		{
-			return;
-		}
+		return;
 	}
 
 	UArcanaQueuedAction* QueuedAction = NewObject<UArcanaQueuedAction>();
