@@ -18,7 +18,8 @@ UENUM(BlueprintType)
 enum class EQueuedActionType : uint8
 {
 	MoveTo,
-	ObjectInteraction
+	ObjectInteraction,
+	Inspect
 };
 
 UENUM(BlueprintType)
@@ -71,6 +72,7 @@ protected:
 
 	void InitMoveAction(const FVector& InTargetLocation);
 	void InitInteractionAction(const UArcanaActionData* InActionData, UInteractiveObjectComponent* InTargetInteractiveObjectComponent);
+	void InitInspectAction(UInteractiveObjectComponent* InTargetInteractiveObjectComponent);
 };
 
 UCLASS()
@@ -91,6 +93,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void QueueMoveAction(const FVector& TargetLocation);
 
+	UFUNCTION(BlueprintCallable)
+	void QueueInspectAction(UInteractiveObjectComponent* TargetInteractiveObjectComponent);
+
 	const UArcanaActionData* GetInProgressActionData() const;
 
 protected:
@@ -98,6 +103,7 @@ protected:
 	void OnMoveCompleted(struct FAIRequestID RequestID, EPathFollowingResult::Type MovementResult);
 
 	void BeginInteraction(UArcanaQueuedAction* CurrentQueuedAction);
+	void InspectObject(const UInteractiveObjectComponent* TargetInteractiveObjectComponent);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Actions")
 	int32 MaxQueueSize = 2;

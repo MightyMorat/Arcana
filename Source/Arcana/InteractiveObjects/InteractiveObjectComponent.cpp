@@ -8,6 +8,17 @@
 #include "Engine.h"
 #include "GameFramework/Actor.h"
 
+bool FArcanaConditionalText::AreConditionsMet(const UObject* WorldContextObject) const
+{
+	for (const UArcanaCondition* Condition : Conditions)
+	{
+		if (Condition && !Condition->IsConditionMet(WorldContextObject))
+			return false;
+	}
+
+	return true;
+}
+
 UInteractiveObjectComponent::UInteractiveObjectComponent()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> InteractOptionsWidgetClassFinder(TEXT("/Game/UI/Widgets/HUD/UI_BP_InteractOptions"));
@@ -115,6 +126,17 @@ TArray<FArcanaAction> UInteractiveObjectComponent::GetAvailableActions() const
 	}
 
 	return AvailableActions;
+}
+
+FText UInteractiveObjectComponent::GetInspectText() const
+{
+	for (const FArcanaConditionalText& ConditionalText : ConditionalInspectText)
+	{
+		if (ConditionalText.AreConditionsMet(this))
+			return ConditionalText.InspectText;
+	}
+
+	return DefaultInspectText;
 }
 
 FVector UInteractiveObjectComponent::GetLocatorPosition(FName Tag) const

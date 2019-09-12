@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameMode/ArcanaGameMode.h"
 #include "InteractiveObjects/InteractiveObjectComponent.h"
+#include "UI/ArcanaHUD.h"
 
 UWorld* UArcanaQueuedAction::GetWorld() const
 {
@@ -30,8 +31,20 @@ void UArcanaQueuedAction::InitInteractionAction(const UArcanaActionData* InActio
 
 	if (TargetInteractiveObjectComponent)
 	{
-		static const FName DefaultInteractLocation("DefaultInteractLocator");
-		TargetLocation = TargetInteractiveObjectComponent->GetLocatorPosition(DefaultInteractLocation);
+		static const FName DefaultInteractLocator("DefaultInteractLocator");
+		TargetLocation = TargetInteractiveObjectComponent->GetLocatorPosition(DefaultInteractLocator);
+	}
+}
+
+void UArcanaQueuedAction::InitInspectAction(UInteractiveObjectComponent* InTargetInteractiveObjectComponent)
+{
+	Type = EQueuedActionType::Inspect;
+	TargetInteractiveObjectComponent = InTargetInteractiveObjectComponent;
+
+	if (TargetInteractiveObjectComponent)
+	{
+		static const FName DefaultInteractLocator("DefaultInteractLocator");
+		TargetLocation = TargetInteractiveObjectComponent->GetLocatorPosition(DefaultInteractLocator);
 	}
 }
 
@@ -105,6 +118,27 @@ void AArcanaPlayerCharacter::QueueInteractionAction(const UArcanaActionData* Act
 	ActionQueue.Add(QueuedAction);
 }
 
+void AArcanaPlayerCharacter::QueueInspectAction(UInteractiveObjectComponent* TargetInteractiveObjectComponent)
+{
+	if (ActionQueue.Num() >= MaxQueueSize)
+	{
+		if (MaxQueueSize > 1)
+		{
+			// Replace the top of the queue
+			CancelQueuedAction(ActionQueue.Last());
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	UArcanaQueuedAction* QueuedAction = NewObject<UArcanaQueuedAction>();
+	QueuedAction->InitInspectAction(TargetInteractiveObjectComponent);
+
+	ActionQueue.Add(QueuedAction);
+}
+
 void AArcanaPlayerCharacter::QueueMoveAction(const FVector& TargetLocation)
 {
 	// Don't queue two movement commands in a row - just update to the new target location
@@ -151,6 +185,12 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 						{
 							switch (CurrentQueuedAction->Type)
 							{
+								case EQueuedActionType::Inspect:
+								{
+									InspectObject(CurrentQueuedAction->TargetInteractiveObjectComponent);
+									CancelQueuedAction(CurrentQueuedAction);
+									break;
+								}
 								case EQueuedActionType::MoveTo:
 								{
 									CancelQueuedAction(CurrentQueuedAction);
@@ -245,6 +285,12 @@ void AArcanaPlayerCharacter::OnMoveCompleted(FAIRequestID RequestID, EPathFollow
 	{
 		switch (CurrentQueuedAction->Type)
 		{
+			case EQueuedActionType::Inspect:
+			{
+				InspectObject(CurrentQueuedAction->TargetInteractiveObjectComponent);
+				CancelQueuedAction(CurrentQueuedAction);
+				break;
+			}
 			case EQueuedActionType::MoveTo:
 			{
 				CancelQueuedAction(CurrentQueuedAction);
@@ -297,4 +343,18 @@ void AArcanaPlayerCharacter::BeginInteraction(UArcanaQueuedAction* CurrentQueued
 	}
 
 	CurrentQueuedAction->ActionState = EQueuedActionState::InProgress;
+}
+
+void AArcanaPlayerCharacter::InspectObject(const UInteractiveObjectComponent* TargetInteractiveObjectComponent)
+{
+	if (!TargetInteractiveObjectComponent)
+		return;
+
+	UWorld* World = GetWorld();
+	APlayerController* PlayerController = World ? World->GetFirstPlayerController() : nullptr;
+	AArcanaHUD* ArcanaHUD = PlayerController ? Cast<AArcanaHUD>(PlayerController->GetHUD()) : nullptr;
+	if (!ArcanaHUD)
+		return;
+
+	ArcanaHUD->DisplayNotification(TargetInteractiveObjectComponent->GetInspectText());
 }
