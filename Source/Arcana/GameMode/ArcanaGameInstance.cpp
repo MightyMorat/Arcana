@@ -88,6 +88,7 @@ void UArcanaGameInstance::BeginLoadingScreen(const FString& InMapName)
 
 	FLoadingScreenAttributes LoadingScreen;
 	LoadingScreen.bAutoCompleteWhenLoadingCompletes = false;
+	LoadingScreen.MinimumLoadingScreenDisplayTime = UArcanaSettings::Get()->MinimumLoadingScreenTime;
 	LoadingScreen.WidgetLoadingScreen = SNew(SArcanaLoadingScreenWidget).LoadingScreenImage(LoadingScreenImage);
 
 	GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);

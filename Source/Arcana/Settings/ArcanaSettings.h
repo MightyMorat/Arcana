@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "UI")
 	TArray<TSoftObjectPtr<UTexture2D>> LoadingScreenTextures;
 
+	UPROPERTY(EditAnywhere, config, Category = "UI")
+	float MinimumLoadingScreenTime = 2.0f;
+
 	UPROPERTY(EditAnywhere, config, Category = "Needs")
 	TAssetPtr<UDataTable> NeedsDataTable;
 
