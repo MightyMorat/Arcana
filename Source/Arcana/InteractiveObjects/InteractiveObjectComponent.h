@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure = false)
 	TArray<FArcanaAction> GetAvailableActions() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure = false)
+	FVector GetLocatorPosition(FName LocatorId) const;
+
 protected:
 	void SetActorOutlineEnabled(bool bEnable);
 

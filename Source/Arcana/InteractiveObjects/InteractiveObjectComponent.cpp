@@ -116,3 +116,18 @@ TArray<FArcanaAction> UInteractiveObjectComponent::GetAvailableActions() const
 
 	return AvailableActions;
 }
+
+FVector UInteractiveObjectComponent::GetLocatorPosition(FName Tag) const
+{
+	TArray<USceneComponent*> Locators;
+	GetOwner()->GetComponents<USceneComponent>(Locators);
+
+	for (const USceneComponent* Locator : Locators)
+	{
+		if (Locator && Locator->ComponentTags.Contains(Tag))
+			return Locator->GetComponentLocation();
+	}
+
+	ensureMsgf(false, TEXT("Locator not found. Actor: %s, Tag: %s"), *GetOwner()->GetName(), *Tag.ToString());
+	return GetComponentLocation();
+}

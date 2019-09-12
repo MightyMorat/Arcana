@@ -30,7 +30,8 @@ void UArcanaQueuedAction::InitInteractionAction(const UArcanaActionData* InActio
 
 	if (TargetInteractiveObjectComponent)
 	{
-		TargetLocation = TargetInteractiveObjectComponent->GetComponentLocation();
+		static const FName DefaultInteractLocation("DefaultInteractLocator");
+		TargetLocation = TargetInteractiveObjectComponent->GetLocatorPosition(DefaultInteractLocation);
 	}
 }
 
