@@ -2,8 +2,6 @@
 
 #include "InteractiveObjectComponent.h"
 
-#include "Blueprint/UserWidget.h"
-#include "Components/WidgetComponent.h"
 #include "Conditions/ArcanaCondition.h"
 #include "Engine.h"
 #include "GameFramework/Actor.h"
@@ -17,20 +15,6 @@ bool FArcanaConditionalText::AreConditionsMet(const UObject* WorldContextObject)
 	}
 
 	return true;
-}
-
-UInteractiveObjectComponent::UInteractiveObjectComponent()
-{
-	static ConstructorHelpers::FClassFinder<UUserWidget> InteractOptionsWidgetClassFinder(TEXT("/Game/UI/Widgets/HUD/UI_BP_InteractOptions"));
-	if (InteractOptionsWidgetClassFinder.Succeeded())
-	{
-		InteractOptionsWidgetClass = InteractOptionsWidgetClassFinder.Class;
-
-		InteractOptionsWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractOptionsWidgetComponent"));
-		InteractOptionsWidgetComponent->SetDrawAtDesiredSize(true);
-		InteractOptionsWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-		InteractOptionsWidgetComponent->SetupAttachment(this);
-	}
 }
 
 void UInteractiveObjectComponent::OnHovered()
@@ -57,11 +41,6 @@ void UInteractiveObjectComponent::OnSelected()
 	{
 		SetActorOutlineEnabled(true);
 	}
-
-	if (InteractOptionsWidgetComponent)
-	{
-		InteractOptionsWidgetComponent->SetWidgetClass(InteractOptionsWidgetClass);
-	}
 }
 
 void UInteractiveObjectComponent::OnDeselected()
@@ -71,11 +50,6 @@ void UInteractiveObjectComponent::OnDeselected()
 	if (!bIsHovered)
 	{
 		SetActorOutlineEnabled(false);
-	}
-
-	if (InteractOptionsWidgetComponent)
-	{
-		InteractOptionsWidgetComponent->SetWidgetClass(nullptr);
 	}
 }
 

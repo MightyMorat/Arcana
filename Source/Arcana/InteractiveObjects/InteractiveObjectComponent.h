@@ -31,8 +31,6 @@ class ARCANA_API UInteractiveObjectComponent : public USceneComponent
 	GENERATED_BODY()
 
 public:
-	UInteractiveObjectComponent();
-
 	void OnHovered();
 	void OnUnhovered();
 	void OnSelected();
@@ -48,12 +46,6 @@ public:
 
 protected:
 	void SetActorOutlineEnabled(bool bEnable);
-
-	TSubclassOf<class UUserWidget> InteractOptionsWidgetClass;
-	UUserWidget* InteractOptionsWidget = nullptr;
-
-	UPROPERTY()
-	class UWidgetComponent* InteractOptionsWidgetComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UArcanaActionGroup* ActionGroup = nullptr;

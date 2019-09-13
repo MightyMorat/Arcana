@@ -15,6 +15,7 @@
 #include "GameMode/ArcanaGameMode.h"
 #include "InteractiveObjects/InteractiveObjectComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/ArcanaHUD.h"
 
 AArcanaPlayerController::AArcanaPlayerController()
 {
@@ -121,16 +122,28 @@ void AArcanaPlayerController::OnLeftClickReleased()
 	{
 		if (HoveredInteractiveObjectComponent != SelectedInteractiveObjectComponent)
 		{
+			AArcanaHUD* ArcanaHUD = Cast<AArcanaHUD>(GetHUD());
+
 			if (SelectedInteractiveObjectComponent)
 			{
 				SelectedInteractiveObjectComponent->OnDeselected();
+
+				if (ArcanaHUD)
+				{
+					ArcanaHUD->HideInteractOptions();
+				}
 			}
 
 			SelectedInteractiveObjectComponent = HoveredInteractiveObjectComponent;
 
-			if (HoveredInteractiveObjectComponent)
+			if (SelectedInteractiveObjectComponent)
 			{
-				HoveredInteractiveObjectComponent->OnSelected();
+				SelectedInteractiveObjectComponent->OnSelected();
+
+				if (ArcanaHUD)
+				{
+					ArcanaHUD->ShowInteractOptions(SelectedInteractiveObjectComponent);
+				}
 			}
 		}
 
@@ -316,5 +329,10 @@ void AArcanaPlayerController::DeselectSelectedObject()
 	{
 		SelectedInteractiveObjectComponent->OnDeselected();
 		SelectedInteractiveObjectComponent = nullptr;
+
+		if (AArcanaHUD * ArcanaHUD = Cast<AArcanaHUD>(GetHUD()))
+		{
+			ArcanaHUD->HideInteractOptions();
+		}
 	}
 }
