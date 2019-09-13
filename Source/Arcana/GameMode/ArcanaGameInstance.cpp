@@ -80,6 +80,9 @@ void UArcanaGameInstance::Init()
 
 void UArcanaGameInstance::BeginLoadingScreen(const FString& InMapName)
 {
+	if (!bIsScenarioLoaded)
+		return;
+
 	UTexture2D* LoadingScreenImage = nullptr;
 	if (LoadingScreenTextures.Num() > 0)
 	{
