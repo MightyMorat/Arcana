@@ -230,7 +230,7 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 						CurrentQueuedAction->ActionRemainingTime -= DeltaGameHours;
 					}
 
-					// Trigger conditioned events
+					// Trigger OnConditionsMet events
 					for (const UArcanaActionEvent* Event : ActionData->ActionEvents)
 					{
 						if (Event && Event->GetTriggerType() == EArcanaActionEventTriggerType::OnConditionsMet
@@ -243,6 +243,16 @@ void AArcanaPlayerCharacter::Tick(float DeltaSeconds)
 
 					if (ActionData->bHasMaxDuration && CurrentQueuedAction->ActionRemainingTime <= 0.0f)
 					{
+						// Trigger OnActionDurationComplete events
+						for (const UArcanaActionEvent* Event : ActionData->ActionEvents)
+						{
+							if (Event && Event->GetTriggerType() == EArcanaActionEventTriggerType::OnActionDurationComplete
+								&& Event->AreConditionsMet(CurrentQueuedAction))
+							{
+								Event->TriggerEffects(CurrentQueuedAction);
+							}
+						}
+
 						CancelQueuedAction(CurrentQueuedAction);
 					}
 				}
@@ -326,7 +336,7 @@ void AArcanaPlayerCharacter::BeginInteraction(UArcanaQueuedAction* CurrentQueued
 			}
 		}
 
-		// Trigger OnStart events
+		// Trigger OnActionStart events
 		for (const UArcanaActionEvent* Event : ActionData->ActionEvents)
 		{
 			if (Event && Event->GetTriggerType() == EArcanaActionEventTriggerType::OnActionStart && Event->AreConditionsMet(CurrentQueuedAction))

@@ -5,6 +5,17 @@
 #include "Characters/ArcanaPlayerCharacter.h"
 #include "Conditions/ArcanaCondition.h"
 
+/*static*/ void UArcanaActionEffect::TriggerEffectList(const TArray<UArcanaActionEffect*>& EffectList, UArcanaQueuedAction* QueuedAction)
+{
+	for (const UArcanaActionEffect* Effect : EffectList)
+	{
+		if (Effect)
+		{
+			Effect->TriggerEffect(QueuedAction);
+		}
+	}
+}
+
 bool UArcanaActionEvent::AreConditionsMet(const UArcanaQueuedAction* QueuedAction) const
 {
 	for (const UArcanaCondition* Condition : Conditions)
@@ -20,11 +31,5 @@ bool UArcanaActionEvent::AreConditionsMet(const UArcanaQueuedAction* QueuedActio
 
 void UArcanaActionEvent::TriggerEffects(UArcanaQueuedAction* QueuedAction) const
 {
-	for (const UArcanaActionEffect* Effect : Effects)
-	{
-		if (Effect)
-		{
-			Effect->TriggerEffect(QueuedAction);
-		}
-	}
+	UArcanaActionEffect::TriggerEffectList(Effects, QueuedAction);
 }

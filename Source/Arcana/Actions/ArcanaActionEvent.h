@@ -12,7 +12,8 @@ UENUM()
 enum class EArcanaActionEventTriggerType : uint8
 {
 	OnActionStart,
-	OnConditionsMet
+	OnConditionsMet,
+	OnActionDurationComplete
 };
 
 UCLASS(Abstract, DefaultToInstanced, EditInlineNew, AutoExpandCategories = ("Effect Properties"))
@@ -22,6 +23,8 @@ class ARCANA_API UArcanaActionEffect : public UObject
 
 public:
 	virtual void TriggerEffect(UArcanaQueuedAction* QueuedAction) const PURE_VIRTUAL(UArcanaActionEffect, return;);
+
+	static void TriggerEffectList(const TArray<UArcanaActionEffect*>& EffectList, UArcanaQueuedAction* QueuedAction);
 };
 
 /**
