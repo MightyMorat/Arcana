@@ -145,3 +145,8 @@ void UArcanaGameInstance::LoadScenario(const FArcanaStartingScenario& Scenario)
 	// Load level
 	UGameplayStatics::OpenLevel(this, Scenario.LevelName);
 }
+
+void UArcanaGameInstance::ReturnToMenu()
+{
+	ReturnToMainMenu();
+}

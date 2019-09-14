@@ -66,6 +66,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsScenarioLoaded() const { return bIsScenarioLoaded; }
 
+	UFUNCTION(BlueprintCallable)
+	void ReturnToMenu();
+
 private:
 	TArray<FArcanaNeedState> NeedStates;
 	TArray<FArcanaSkillState> SkillStates;

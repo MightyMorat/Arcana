@@ -25,4 +25,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ArcanaHUD")
 	void DisplayNotification(const FText& NotificationText);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "ArcanaHUD")
+	void ShowPauseMenu();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "ArcanaHUD")
+	void ClosePauseMenu();
 };

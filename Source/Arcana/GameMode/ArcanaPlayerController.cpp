@@ -50,6 +50,8 @@ void AArcanaPlayerController::BeginPlay()
 
 	InputComponent->BindAxisKey(EKeys::MouseX, this, &AArcanaPlayerController::OnMouseX);
 	InputComponent->BindAxisKey(EKeys::MouseWheelAxis, this, &AArcanaPlayerController::OnMouseWheel);
+
+	InputComponent->BindAction("Pause", EInputEvent::IE_Pressed, this, &AArcanaPlayerController::OnPause).bExecuteWhenPaused = true;
 }
 
 void AArcanaPlayerController::OnPossess(APawn* aPawn)
@@ -188,6 +190,30 @@ void AArcanaPlayerController::OnRightClickReleased()
 	InputMode.SetHideCursorDuringCapture(false);
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockOnCapture);
 	SetInputMode(InputMode);
+}
+
+void AArcanaPlayerController::OnPause()
+{
+	AArcanaHUD* ArcanaHUD = Cast<AArcanaHUD>(GetHUD());
+	if (ArcanaHUD)
+	{
+		if (IsPaused())
+		{
+			Pause();
+			ArcanaHUD->ClosePauseMenu();
+		}
+		else
+		{
+			bLMBPressed = false;
+			bShowMouseCursor = true;
+
+			if (bRMBPressed)
+				OnRightClickReleased();
+
+			Pause();
+			ArcanaHUD->ShowPauseMenu();
+		}
+	}
 }
 
 void AArcanaPlayerController::OnMouseX(float AxisValue)

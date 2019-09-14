@@ -46,6 +46,8 @@ protected:
 	void OnRightClickPressed();
 	void OnRightClickReleased();
 
+	void OnPause();
+
 	void OnMouseX(float AxisValue);
 	void OnMouseWheel(float AxisValue);
 
