@@ -56,7 +56,7 @@ public:
 	TArray<UArcanaBuff*> GetActiveBuffs(FArcanaNeed AffectedNeed) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Buffs")
-	UArcanaBuff* ApplyBuff(const UArcanaBuffData* BuffData, UObject* ContextObject);
+	UArcanaBuff* ApplyBuff(const UArcanaBuffData* BuffData, UObject* ContextObject, bool bIsTransient = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Buffs")
 	void RemoveBuff(UArcanaBuff* Buff);

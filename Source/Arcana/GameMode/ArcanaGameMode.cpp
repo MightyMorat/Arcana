@@ -284,7 +284,7 @@ TArray<UArcanaBuff*> AArcanaGameMode::GetActiveBuffs(FArcanaNeed AffectedNeed) c
 	return ActiveBuffs;
 }
 
-UArcanaBuff* AArcanaGameMode::ApplyBuff(const UArcanaBuffData* BuffData, UObject* ContextObject)
+UArcanaBuff* AArcanaGameMode::ApplyBuff(const UArcanaBuffData* BuffData, UObject* ContextObject, bool bIsTransient)
 {
 	if (!GameInstance)
 		return nullptr;
@@ -300,6 +300,7 @@ UArcanaBuff* AArcanaGameMode::ApplyBuff(const UArcanaBuffData* BuffData, UObject
 	UArcanaBuff* Buff = NewObject<UArcanaBuff>();
 	Buff->BuffData = BuffData;
 	Buff->ContextObject = ContextObject;
+	Buff->bIsTransient = bIsTransient;
 	GameInstance->Buffs.Add(Buff);
 
 	return Buff;

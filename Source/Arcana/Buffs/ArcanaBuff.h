@@ -24,4 +24,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	const UArcanaBuffData* BuffData = nullptr;
+
+	bool bIsTransient = false;
 };
