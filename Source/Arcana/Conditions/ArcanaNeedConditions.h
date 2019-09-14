@@ -38,3 +38,16 @@ public:
 private:
 	virtual bool IsConditionMet_Internal(const UObject* WorldContextObject) const override final;
 };
+
+UCLASS()
+class ARCANA_API UArcanaCurrencyCondition final : public UArcanaCondition
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, Category = "Condition Properties", meta = (ClampMin = 0))
+	int32 MinimumCurrency = 0;
+
+private:
+	virtual bool IsConditionMet_Internal(const UObject* WorldContextObject) const override final;
+};

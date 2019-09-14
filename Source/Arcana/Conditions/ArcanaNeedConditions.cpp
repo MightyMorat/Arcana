@@ -43,3 +43,16 @@ bool UArcanaHasNeedCondition::IsConditionMet_Internal(const UObject* WorldContex
 
 	return false;
 }
+
+bool UArcanaCurrencyCondition::IsConditionMet_Internal(const UObject* WorldContextObject) const
+{
+	UWorld* World = WorldContextObject ? WorldContextObject->GetWorld() : nullptr;
+	AArcanaGameMode* GameMode = World ? Cast<AArcanaGameMode>(World->GetAuthGameMode()) : nullptr;
+
+	if (GameMode)
+	{
+		return GameMode->GetCurrency() >= MinimumCurrency;
+	}
+
+	return false;
+}

@@ -334,6 +334,14 @@ void AArcanaGameMode::RemoveBuff(UArcanaBuff* Buff)
 	GameInstance->Buffs.Remove(Buff);
 }
 
+void AArcanaGameMode::GrantCurrency(int32 AmountToGrant)
+{
+	if (!GameInstance)
+		return;
+
+	GameInstance->Currency += AmountToGrant;
+}
+
 /** Console commands */
 void AArcanaGameMode::SetNeedValue(FName Need, float Value)
 {

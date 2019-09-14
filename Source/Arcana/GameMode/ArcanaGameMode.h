@@ -40,6 +40,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Currency")
 	int32 GetCurrency() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Currency")
+	void GrantCurrency(int32 AmountToGrant);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = "Needs")
 	void GetNeedState(FArcanaNeed Need, bool& bFound, FArcanaNeedState& NeedState) const;
 

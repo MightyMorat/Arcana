@@ -59,3 +59,15 @@ public:
 
 	virtual void TriggerEffect(UArcanaQueuedAction* QueuedAction) const override;
 };
+
+UCLASS()
+class ARCANA_API UArcanaGrantCurrencyEffect : public UArcanaActionEffect
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, Category = "Effect Properties")
+	int32 AmountToGrant = 1;
+
+	virtual void TriggerEffect(UArcanaQueuedAction* QueuedAction) const override;
+};

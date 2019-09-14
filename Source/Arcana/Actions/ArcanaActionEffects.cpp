@@ -65,3 +65,13 @@ void UArcanaRandomEffects::TriggerEffect(UArcanaQueuedAction* QueuedAction) cons
 		}
 	}
 }
+
+void UArcanaGrantCurrencyEffect::TriggerEffect(UArcanaQueuedAction* QueuedAction) const
+{
+	UWorld* World = QueuedAction ? QueuedAction->GetWorld() : nullptr;
+	AArcanaGameMode* GameMode = World ? Cast<AArcanaGameMode>(World->GetAuthGameMode()) : nullptr;	
+	if (GameMode)
+	{
+		GameMode->GrantCurrency(AmountToGrant);
+	}
+}
