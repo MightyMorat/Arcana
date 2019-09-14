@@ -92,4 +92,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UCameraComponent* CameraComponent;
+
+	bool bHasLevelBounds = false;
+	FBox LevelBounds;
 };

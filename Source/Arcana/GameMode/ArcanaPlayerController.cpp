@@ -4,10 +4,12 @@
 
 #include "Camera/CameraComponent.h"
 #include "Characters/ArcanaPlayerCharacter.h"
+#include "Classes/Engine/LevelBounds.h"
 #include "Components/InputComponent.h"
 #include "Engine/GameViewportClient.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "FunctionLibraries/ArcanaFunctionLibrary.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
@@ -52,6 +54,15 @@ void AArcanaPlayerController::BeginPlay()
 	InputComponent->BindAxisKey(EKeys::MouseWheelAxis, this, &AArcanaPlayerController::OnMouseWheel);
 
 	InputComponent->BindAction("Pause", EInputEvent::IE_Pressed, this, &AArcanaPlayerController::OnPause).bExecuteWhenPaused = true;
+
+	bHasLevelBounds = false;
+	for (TActorIterator<ALevelBounds> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		ALevelBounds* LevelBoundsActor = *ActorItr;
+		bHasLevelBounds = true;
+		LevelBounds = LevelBoundsActor->GetComponentsBoundingBox(true);
+		break;
+	}
 }
 
 void AArcanaPlayerController::OnPossess(APawn* aPawn)
@@ -340,6 +351,15 @@ void AArcanaPlayerController::PostProcessInput(const float DeltaTime, const bool
 							{
 								PawnActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 								PawnActor->AddActorWorldOffset(TargetDisplacement);
+
+								// Clamp camera to level bounds
+								if (bHasLevelBounds)
+								{
+									FVector ClampedLocation = PawnActor->GetActorLocation();
+									ClampedLocation.X = FMath::Clamp(ClampedLocation.X, LevelBounds.Min.X, LevelBounds.Max.X);
+									ClampedLocation.Y = FMath::Clamp(ClampedLocation.Y, LevelBounds.Min.Y, LevelBounds.Max.Y);
+									PawnActor->SetActorLocation(ClampedLocation);
+								}
 							}
 						}
 					}
