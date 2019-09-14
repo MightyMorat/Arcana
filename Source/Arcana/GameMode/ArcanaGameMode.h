@@ -32,7 +32,7 @@ public:
 
 	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
 	virtual void Tick(float DeltaSeconds);
-	virtual void BeginPlay();
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage);
 
 	UFUNCTION(BlueprintCallable)
 	AArcanaPlayerCharacter* GetPlayerCharacter() const { return PlayerCharacter; }

@@ -18,9 +18,9 @@ AArcanaGameMode::AArcanaGameMode()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void AArcanaGameMode::BeginPlay()
+void AArcanaGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
-	Super::BeginPlay();
+	Super::InitGame(MapName, Options, ErrorMessage);
 
 	GameInstance = GetGameInstance<UArcanaGameInstance>();
 }
