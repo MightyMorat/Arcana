@@ -20,7 +20,7 @@ class ARCANA_API UArcanaActionData : public UDataAsset
 
 public:
 #if WITH_EDITOR
-	virtual bool CanEditChange(const UProperty* InProperty) const override;
+	virtual bool CanEditChange(const FProperty* InProperty) const override;
 #endif
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (InlineEditConditionToggle))

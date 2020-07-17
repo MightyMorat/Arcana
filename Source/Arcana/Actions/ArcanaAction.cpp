@@ -3,7 +3,7 @@
 #include "ArcanaAction.h"
 
 #if WITH_EDITOR
-bool UArcanaActionData::CanEditChange(const UProperty* InProperty) const
+bool UArcanaActionData::CanEditChange(const FProperty* InProperty) const
 {
 	if (!Super::CanEditChange(InProperty))
 		return false;
